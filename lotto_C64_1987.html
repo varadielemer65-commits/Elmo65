@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LOTTÓ WHEELING SYSTEM v1.0</title>
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+
+@media (max-width:480px){
+  .monitor{padding:16px 12px;border-width:10px;margin-top:8px}
+  h1{font-size:1.8rem;letter-spacing:2px}
+  .tagline{font-size:0.85rem;letter-spacing:1px;margin-bottom:14px}
+  .prompt{font-size:1.05rem}
+  .btn{font-size:1.05rem;padding:6px 10px}
+  .btn-go,.btn-back{width:100%;text-align:center;margin:3px 0}
+  .btn-row{flex-direction:column;align-items:center}
+  input[type=number]{width:52px;font-size:1.1rem;padding:4px 5px}
+  .pos-lbl{font-size:1rem;min-width:70px}
+  .pos-block{gap:5px}
+  .lbl{font-size:1rem;min-width:120px}
+  .ball{width:30px;height:30px;font-size:0.85rem}
+  .t-serial{font-size:0.95rem;min-width:55px}
+  .ticket{padding:5px 8px;gap:6px}
+  .guarantee{font-size:0.9rem;padding:8px 10px}
+  .summary{font-size:1rem;padding:8px 10px}
+  .monitor::before{font-size:0.85rem;letter-spacing:0px}
+  .c64-footer{font-size:0.95rem}
+  .step-bar{font-size:0.75rem}
+  .sb{font-size:0.75rem}
+  .info{font-size:0.9rem}
+  h1{font-size:1.6rem}
+}
+
+@media (max-width:360px){
+  input[type=number]{width:45px;font-size:1rem}
+  .ball{width:26px;height:26px;font-size:0.78rem}
+  h1{font-size:1.4rem}
+}
+
+@media (orientation:landscape) and (max-height:500px){
+  .monitor{padding:10px 16px}
+  h1{font-size:1.4rem;margin-bottom:2px}
+  .tagline{margin-bottom:8px}
+  hr{margin:8px 0}
+  .guarantee{padding:6px 10px;font-size:0.85rem}
+  .tickets-wrap{max-height:200px}
+}
+body{
+  background:#050518;
+  min-height:100vh;
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  font-family:'VT323','Courier New',monospace;
+  padding:20px;
+}
+.monitor{
+  background:#0000aa;
+  border:18px solid #5555ff;
+  border-radius:6px;
+  padding:30px 35px;
+  max-width:760px;
+  width:100%;
+  margin-top:20px;
+  position:relative;
+  box-shadow:0 0 80px #5555ff55,0 0 0 24px #5555ff,0 0 0 26px #5555ff;
+}
+.monitor::before{
+  content:'**** COMMODORE 64 BASIC V2 ****';
+  display:block;
+  color:#aaaaff;
+  font-size:1.25rem;
+  letter-spacing:2px;
+  text-align:center;
+  margin-bottom:18px;
+}
+h1{color:#ffff55;font-size:2.6rem;letter-spacing:4px;text-align:center;margin-bottom:4px}
+.tagline{color:#ffff55;text-align:center;font-size:1.1rem;letter-spacing:2px;margin-bottom:25px}
+hr{border:none;border-top:1px solid #3333aa;margin:18px 0}
+.prompt{color:#55ffff;font-size:1.35rem;margin-bottom:12px;letter-spacing:1px;text-align:center}
+.info{color:#7b7bff;font-size:1.1rem;margin:8px 0;line-height:1.5}
+.err{color:#ff5555;font-size:1.15rem;margin:10px 0;min-height:1.4rem;text-align:center}
+.btn-row{display:flex;gap:12px;flex-wrap:wrap;margin:14px 0;justify-content:center}
+.btn{
+  background:#000088;border:2px solid #5555ff;
+  color:#ffff55;font-family:'VT323','Courier New',monospace;
+  font-size:1.35rem;padding:7px 18px;cursor:pointer;
+  letter-spacing:2px;transition:background .1s,color .1s;
+}
+.btn:hover,.btn.sel{background:#5555ff;color:#000044;border-color:#fff}
+.btn-go{background:#003300;border-color:#55ff55;color:#55ff55}
+.btn-go:hover{background:#55ff55;color:#003300}
+.btn-back{background:#330000;border-color:#ff5555;color:#ff5555}
+.btn-back:hover{background:#ff5555;color:#330000}
+.row{display:flex;align-items:center;gap:10px;margin:8px 0;flex-wrap:wrap}
+.lbl{color:#55ffff;font-size:1.2rem;min-width:170px}
+input[type=number]{
+  background:#000044;border:2px solid #3333aa;
+  color:#ffff55;font-family:'VT323','Courier New',monospace;
+  font-size:1.3rem;padding:5px 8px;outline:none;width:65px;
+}
+input[type=number]:focus{border-color:#55ffff}
+.pos-block{margin:6px 0;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pos-lbl{color:#ffff55;font-size:1.2rem;min-width:90px}
+.guarantee{
+  background:#002200;border:2px solid #55ff55;
+  padding:12px 16px;margin:14px 0;color:#55ff55;
+  font-size:1.1rem;line-height:1.6;text-align:center;
+}
+.tickets-wrap{max-height:380px;overflow-y:auto;margin:10px 0}
+.tickets-wrap::-webkit-scrollbar{width:8px}
+.tickets-wrap::-webkit-scrollbar-track{background:#000044}
+.tickets-wrap::-webkit-scrollbar-thumb{background:#3333aa}
+.ticket{
+  background:#000055;border:1px solid #3333aa;
+  padding:7px 14px;margin:4px 0;
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+}
+.t-serial{color:#ffff55;font-size:1.15rem;min-width:75px}
+.t-nums{display:flex;gap:6px;flex-wrap:wrap}
+.ball{
+  background:#000088;border:1px solid #5555ff;color:#fff;
+  width:38px;height:38px;display:flex;align-items:center;
+  justify-content:center;font-size:1.1rem;
+}
+.ball.hit{background:#004400;border-color:#55ff55;color:#55ff55}
+.t-score{margin-left:auto;font-size:1.2rem;color:#7b7bff}
+.t-score.s5{color:#ffff55;font-size:1.4rem}
+.t-score.s4{color:#55ffff}
+.t-score.s3{color:#7b7bff}
+.summary{
+  background:#001133;border:2px solid #55ffff;
+  padding:12px 16px;margin:12px 0;color:#55ffff;
+  font-size:1.25rem;line-height:1.8;
+}
+.blink{animation:bl 1s step-end infinite}
+.c64-footer{color:#aaaaff;font-size:1.2rem;letter-spacing:1px;margin-top:22px}
+.cursor{display:inline-block;width:11px;height:1.2rem;background:#aaaaff;vertical-align:middle;animation:bl .8s step-end infinite}
+@keyframes bl{0%,100%{opacity:1}50%{opacity:0}}
+.step-bar{color:#7777cc;font-size:0.95rem;margin-bottom:16px;letter-spacing:1px}
+.sb{display:inline-block;color:#5555bb;font-size:0.85rem}
+.sb.lit{color:#55ffff}
+.sb.done{color:#55ffff}
+</style>
+</head>
+<body>
+<div class="monitor">
+  <div id="app"></div>
+  <div class="c64-footer" style="border-top:1px solid #3333aa;margin-top:22px;padding-top:14px"><span style="display:block;color:#aaaaff;font-size:1.1rem;letter-spacing:1px;margin-bottom:6px">LOTTO WHEELING SYSTEM  (C) 1987 RECONSTRUCTED 2025</span><div style="display:flex;justify-content:space-between;align-items:center"><span>READY.<span class="cursor"></span></span><button onclick="toggleFS()" id="fsbtn" style="background:none;border:1px solid #3333aa;color:#3333aa;font-family:VT323,monospace;font-size:0.9rem;padding:2px 8px;cursor:pointer">&#x26F6; TELJES KÉPERNYŐ</button></div>
+</div>
+<script>
+const LOTTO={
+  5:{max:90,pos:5,name:'5-ÖS LOTTÓ  (90/5)'},
+  6:{max:45,pos:6,name:'6-OS LOTTÓ  (45/6)'},
+  7:{max:35,pos:7,name:'7-ES LOTTÓ  (35/7)'}
+};
+
+let S={
+  step:0,
+  type:5,
+  hibapont:1,
+  K:3,
+  serial:1,
+  cands:[],   // cands[pos] = [a,b,c]  (1-indexed numbers)
+  code:[],    // covering code: array of [i0,i1,...] each val in {0,1,2}
+  tickets:[],
+  drawn:[]
+};
+
+/* ── Covering code generator ──────────────────────────── */
+function buildCode(n,t,K){
+  const total=Math.pow(K,n);
+  const pow=Array.from({length:n},(_,i)=>Math.pow(K,i));
+
+  /* hamming distance between two indices */
+  function hdist(a,b){
+    let d=0;
+    for(let p=0;p<n;p++) if(Math.floor(a/pow[p])%K!==Math.floor(b/pow[p])%K) d++;
+    return d;
+  }
+
+  /* neighbor list: all vectors within hamming distance t */
+  const nb=new Array(total);
+  for(let i=0;i<total;i++){
+    nb[i]=[];
+    for(let j=0;j<total;j++) if(hdist(i,j)<=t) nb[i].push(j);
+  }
+
+  /* greedy set cover */
+  const cov=new Uint8Array(total);
+  const cnt=new Int32Array(total);
+  for(let i=0;i<total;i++) cnt[i]=nb[i].length;
+  let left=total;
+  const words=[];
+
+  while(left>0){
+    let best=0;
+    for(let i=1;i<total;i++) if(cnt[i]>cnt[best]) best=i;
+    /* decode best → digit array */
+    const digs=[];
+    let tmp=best;
+    for(let p=0;p<n;p++){digs.push(tmp%K);tmp=Math.floor(tmp/K);}
+    words.push(digs);
+    for(const j of nb[best]){
+      if(!cov[j]){
+        cov[j]=1; left--;
+        for(const k of nb[j]) cnt[k]--;
+      }
+    }
+  }
+  return words;
+}
+
+/* ── Render helpers ───────────────────────────────────── */
+function hdr(step,title){
+  return `<h1>🍀 LOTTÓ 🍀</h1><div class="tagline">WHEELING SYSTEM ─ ${S.hibapont} HIBAPONT GARANCIA</div><hr>
+  ${title?`<div class="prompt">${title}</div>`:''}`;
+}
+
+function barHtml(){
+  const blocks=Array.from({length:24},(_,i)=>`<span class="sb" id="sb${i}">░</span>`).join('');
+  return `<div class="step-bar" style="margin:14px 0 8px 0;text-align:center">${blocks}</div>`;
+}
+
+/* ── STEP 0 : lottó típus ─────────────────────────────── */
+function step0(){
+  return `${hdr(1,'MELYIK LOTTÓT JÁTSSZON A PROGRAM?')}
+  <div style="display:flex;justify-content:center;gap:24px;flex-wrap:wrap;margin:14px 0">
+    <div><span style="color:#55ffff;font-size:1.2rem;letter-spacing:1px">HIBAPONT: </span>
+    <input type="number" min="0" max="3" value="${S.hibapont}"
+      oninput="clampIn(this,0,3)" onchange="S.hibapont=parseInt(this.value)||0;render()"
+      style="width:52px;font-size:1.4rem;text-align:center">
+    <span style="color:#3333aa;font-size:1rem"> (0-3)</span></div>
+    <div><span style="color:#55ffff;font-size:1.2rem;letter-spacing:1px">JELÖLT/POZÍCIÓ: </span>
+    <input type="number" min="3" max="5" value="${S.K}"
+      oninput="clampIn(this,3,5)" onchange="S.K=parseInt(this.value)||3;render()"
+      style="width:52px;font-size:1.4rem;text-align:center">
+    <span style="color:#3333aa;font-size:1rem"> (3-5)</span></div>
+  </div>
+  <div class="btn-row" style="justify-content:center;margin:20px 0">
+    <button class="btn ${S.type==5?'sel':''}" onclick="sel(5)">5-ÖS<br><span style="font-size:.9rem;color:#7b7bff">90 / 5</span></button>
+    <button class="btn ${S.type==6?'sel':''}" onclick="sel(6)">6-OS<br><span style="font-size:.9rem;color:#7b7bff">45 / 6</span></button>
+    <button class="btn ${S.type==7?'sel':''}" onclick="sel(7)">7-ES<br><span style="font-size:.9rem;color:#7b7bff">35 / 7</span></button>
+  </div><hr>
+  <div style="text-align:center;color:#ffff55;font-size:1.1rem;margin:10px 0">
+    ${LOTTO[S.type].name} &mdash; ~${buildCode(LOTTO[S.type].pos, S.hibapont, S.K).length} SZELVÉNY &mdash; GARANCIA: MIN. ${LOTTO[S.type].pos - S.hibapont}-ES TALÁLAT
+  </div>
+  ${barHtml()}
+  <div style="text-align:center;margin-top:8px">
+    <button class="btn btn-go" onclick="go1()">&#9658; TOVÁBB</button>
+  </div>`;
+}
+
+/* ── STEP 1 : adatok ──────────────────────────────────── */
+function step1(){
+  const cfg=LOTTO[S.type];
+  if(S.cands.length!==cfg.pos)
+    S.cands=Array.from({length:cfg.pos},()=>Array(S.K).fill(''));
+
+  let rows='';
+  for(let i=0;i<cfg.pos;i++){
+    rows+=`<div class="pos-block" style="justify-content:center;align-items:center">
+      <div class="pos-lbl">${i+1}. POZÍCIÓ:</div>
+      ${Array.from({length:S.K},(_,j)=>`<input type="number" min="1" max="${cfg.max}"
+        value="${S.cands[i][j]||''}" placeholder="${j+1}. szám" id="c${i}_${j}"
+        oninput="clampIn(this,1,${cfg.max})" onchange="sc(${i},${j},this.value)">`).join('')}
+    </div>`;
+  }
+
+  return `${hdr(2,`JELÖLT SZÁMOK MEGADÁSA  (${cfg.name})`)}
+  <div class="info" style="text-align:center;color:#ffff55;margin-bottom:4px">Minden pozícióhoz pontosan ${S.K} különböző egész számot adj meg (1–${cfg.max}):</div>
+
+  <hr>
+  <div class="row" style="justify-content:center"><div class="lbl">KEZDŐ SORSZÁM:</div>
+    <input type="number" min="1" value="${S.serial}" onchange="S.serial=parseInt(this.value)||1" style="width:120px">
+  </div><hr>
+  ${rows}<hr>
+  <div style="text-align:center;margin:10px 0">
+    <button class="btn btn-go" onclick="randomFill()">&#127922; VÉLETLEN SZÁMOK GENERÁLÁSA</button>
+  </div>
+  <div class="guarantee">
+    &#9733; GARANCIA: Ha minden pozíció jelöltjei között szerepel egy nyerőszám,<br>
+    &nbsp; a generált szelvényeken garantáltan lesz LEGALÁBB ${LOTTO[S.type].pos - S.hibapont}-ES TALÁLAT! &#9733;
+  </div>
+  <div class="err" id="e1"></div>
+  ${barHtml()}
+  <div class="btn-row">
+    <button class="btn btn-back" onclick="go(0)">&#9668; VISSZA</button>
+    <button class="btn btn-go" onclick="go2()">&#9658; SZELVÉNYEKET GENERÁL</button>
+  </div>`;
+}
+
+/* ── STEP 2 : szelvények ──────────────────────────────── */
+function step2(){
+  const cfg=LOTTO[S.type];
+  let html='';
+  S.tickets.forEach((t,i)=>{
+    const sn=S.serial+i;
+    const balls=t.map(n=>`<div class="ball">${n}</div>`).join('');
+    html+=`<div class="ticket">
+      <div class="t-serial"><span style="color:#7777cc">${i+1}.</span> #${String(sn).padStart(10,'0')}</div>
+      <div class="t-nums">${balls}</div>
+    </div>`;
+  });
+  return `${hdr(3,'GENERÁLT SZELVÉNYEK')}
+  <div class="info" style="text-align:center;color:#ffff55">${cfg.name} &mdash; ${S.tickets.length} SZELVÉNY &mdash; GARANCIA: MIN. ${LOTTO[S.type].pos - S.hibapont}-ES TALÁLAT</div><hr>
+  <div class="tickets-wrap">${html}</div><hr>
+  ${barHtml()}
+  <div class="btn-row">
+    <button class="btn btn-back" onclick="go(1)">&#9668; VISSZA</button>
+    <button class="btn btn-go" onclick="go3()">&#9658; KIÉRTÉKELÉS</button>
+  </div>`;
+}
+
+/* ── STEP 3 : kiértékelés ─────────────────────────────── */
+function step3(doEval){
+  const cfg=LOTTO[S.type];
+  const valid=S.drawn.filter(d=>d&&!isNaN(d)&&d>=1&&d<=cfg.max);
+  const ready=valid.length===cfg.pos;
+
+  let inputs='';
+  for(let i=0;i<cfg.pos;i++){
+    inputs+=`<input type="number" min="1" max="${cfg.max}"
+      value="${S.drawn[i]||''}" placeholder="${i+1}."
+      oninput="clampIn(this,1,${cfg.max})" onchange="sd(${i},this.value)" style="width:58px">`;
+  }
+
+  let results='';
+  if(doEval&&ready){
+    const drawnSet=new Set(S.drawn.map(Number));
+    const minHit={5:2,6:3,7:4}[S.type]||2;
+    const byScore={};
+    for(let s=0;s<=cfg.pos;s++) byScore[s]=[];
+    S.tickets.forEach((t,i)=>{
+      const sn=S.serial+i;
+      const hits=t.filter(n=>drawnSet.has(n));
+      byScore[hits.length].push(sn);
+      if(hits.length<minHit) return;
+      const balls=t.map(n=>`<div class="ball ${drawnSet.has(n)?'hit':''}">${n}</div>`).join('');
+      const sc=hits.length;
+      let cls='',lbl=`${sc} TALÁLAT`;
+      if(sc===cfg.pos){cls='s5';lbl=`\u2605 ${sc} TALÁLAT!`;}
+      else if(sc>=cfg.pos-1){cls='s4';lbl=`\u25CF ${sc} TALÁLAT`;}
+      else if(sc>=cfg.pos-2){cls='s3';}
+      results+=`<div class="ticket">
+        <div class="t-serial">${i+1}. &nbsp;#${String(sn).padStart(10,'0')}</div>
+        <div class="t-nums">${balls}</div>
+        <div class="t-score ${cls}">${lbl}</div>
+      </div>`;
+    });
+    let sumRows='';
+    for(let s=cfg.pos;s>=minHit;s--){
+      const cnt=byScore[s].length;
+      const sns=cnt>0?byScore[s].map(n=>`#${String(n).padStart(10,'0')}`).join(', '):'&mdash;';
+      const hi=s===cfg.pos?'color:#ffff55':s===cfg.pos-1?'color:#55ffff':s===cfg.pos-2?'color:#7b7bff':'color:#5555aa';
+      const bold=cnt>0?'font-size:1.25rem':'font-size:1.1rem';
+      sumRows+=`<tr>
+        <td style="${hi};${bold};padding:4px 0;min-width:160px">${s}-ES TALÁLAT:</td>
+        <td style="${hi};${bold};padding:4px 10px;min-width:60px">${cnt} db</td>
+        <td style="color:#5555aa;font-size:1rem;padding:4px 0">${cnt>0?sns:''}</td>
+      </tr>`;
+    }
+    const hidden=Object.entries(byScore).filter(([s])=>parseInt(s)<minHit).reduce((a,[,v])=>a+v.length,0);
+    const hiddenNote=hidden>0?`<tr><td colspan="3" style="color:#3333aa;font-size:1rem;padding-top:8px">(${hidden} db ${minHit-1}-es vagy kevesebb találat nem került kilistázásra)</td></tr>`:'';
+    const noResult=!results?`<div class="info" style="margin-top:8px">Nincs ${minHit}-es vagy jobb találat.</div>`:'';
+    results=`<div class="summary">
+      <table style="width:100%;border-collapse:collapse">${sumRows}${hiddenNote}</table>
+    </div>
+    <div class="tickets-wrap">${results}${noResult}</div>`;
+  } else {
+    results=`<div class="info" style="margin-top:12px">
+      ${ready?'Nyomj KIÉRTÉKELÉS-t a találatok megtekintéséhez...':'Add meg az összes kihúzott számot...'}
+    </div>`;
+  }
+
+  return `${hdr('','HÚZÁS KIÉRTÉKELÉS')}
+  <div class="info">${cfg.name} &mdash; ${S.tickets.length} SZELVÉNY</div>
+  <div class="row" style="margin-top:12px;gap:8px;flex-wrap:wrap">
+    <div class="lbl">KIHÚZOTT SZÁMOK:</div>${inputs}
+  </div>
+  ${results}<hr>
+  ${barHtml()}
+  <div class="btn-row">
+    <button class="btn btn-back" onclick="go(2)">&#9668; SZELVÉNYEK</button>
+    <button class="btn btn-go" onclick="ujHuzas()">&#9658; ÚJ HÚZÁS KIÉRTÉKELÉSE</button>
+    <button class="btn" onclick="go(0)" style="margin-left:auto">&#8635; ÚJ JÁTÉK</button>
+  </div>`;
+}
+
+/* ── Random fill ─────────────────────────────────────── */
+function randomFill(){
+  const cfg=LOTTO[S.type];
+  const all=[];
+  // generate cfg.pos*3 unique numbers
+  while(all.length<cfg.pos*S.K){
+    const n=Math.floor(Math.random()*cfg.max)+1;
+    if(!all.includes(n)) all.push(n);
+  }
+  S.cands=Array.from({length:cfg.pos},(_,i)=>
+    Array.from({length:S.K},(_,j)=>all[i*S.K+j])
+  );
+  render();
+  setTimeout(highlightDups,50);
+}
+
+/* ── Input clamp ─────────────────────────────────────── */
+function clampIn(el,mn,mx){
+  let v=parseInt(el.value);
+  if(isNaN(v)||el.value===''){el.style.borderColor='';return;}
+  if(v<mn||v>mx){
+    el.style.borderColor='#ff5555';
+    el.style.color='#ff5555';
+    if(v<mn) el.value=mn;
+    if(v>mx) el.value=mx;
+    setTimeout(()=>{el.style.borderColor='';el.style.color='#ffff55';},600);
+  } else {
+    el.style.borderColor='#55ff55';
+    el.style.color='#ffff55';
+  }
+}
+
+/* ── State mutations ──────────────────────────────────── */
+function sel(t){S.type=t;render()}
+function sc(pos,idx,v){
+  const n=v?parseInt(v):'';
+  S.cands[pos][idx]=n;
+  highlightDups();}
+function allUsed(){
+  const used=[];
+  S.cands.forEach(row=>row.forEach(v=>{if(v!=='')used.push(Number(v));}));
+  return used;
+}
+function highlightDups(){
+  const cfg=LOTTO[S.type];
+  const counts={};
+  S.cands.forEach(row=>row.forEach(v=>{if(v!==''){const n=Number(v);counts[n]=(counts[n]||0)+1;}}));
+  for(let i=0;i<cfg.pos;i++){
+    for(let j=0;j<S.K;j++){
+      const el=document.getElementById('c'+i+'_'+j);
+      if(!el) continue;
+      const v=S.cands[i][j];
+      if(v===''||v===undefined){el.style.borderColor='';el.style.color='#ffff55';continue;}
+      const n=Number(v);
+      const dupAcross=counts[n]>1;
+      const rowVals=S.cands[i].map(Number).filter((_,jj)=>jj!==j);
+      const dupSame=rowVals.includes(n);
+      if(dupAcross||dupSame){
+        el.style.borderColor='#ff5555';el.style.color='#ff5555';
+      } else {
+        el.style.borderColor='#55ff55';el.style.color='#ffff55';
+      }
+    }
+  }
+}
+function sd(idx,v){
+  S.drawn[idx]=v?parseInt(v):'';
+  const cfg=LOTTO[S.type];
+  const valid=S.drawn.filter(d=>d&&!isNaN(d)&&d>=1&&d<=cfg.max);
+  if(valid.length===cfg.pos){
+    showLoading(null, ()=>render3(true));
+  } else {
+    render3(false);
+  }
+}
+function go(n){S.step=n;render()}
+function go1(){S.step=1;render()}
+
+function go2(){
+  const cfg=LOTTO[S.type];
+  const err=validate(cfg);
+  if(err){document.getElementById('e1').textContent='⚠ '+err;return;}
+  S.code=buildCode(cfg.pos,S.hibapont,S.K);
+  S.tickets=S.code.map(cw=>cw.map((ci,p)=>parseInt(S.cands[p][ci])));
+  S.drawn=Array(cfg.pos).fill('');
+  showLoading(null, ()=>{S.step=2;render();});
+}
+
+function go3(){
+  S.step=3;
+  showLoading(null, ()=>render3(false));
+}
+function eval3(){render3(true)}
+
+function validate(cfg){
+  const all=[];
+  for(let i=0;i<cfg.pos;i++){
+    for(let j=0;j<S.K;j++){
+      const v=S.cands[i][j];
+      if(!v||isNaN(v)||v<1||v>cfg.max)
+        return `${i+1}. POZÍCIÓ, ${j+1}. SZÁM: ÉRVÉNYTELEN (1-${cfg.max})`;
+      all.push(Number(v));
+    }
+    const vals=S.cands[i].map(Number);
+    if(new Set(vals).size!==S.K)
+      return `${i+1}. POZÍCIÓBAN ISMÉTLŐDŐ SZÁM!`;
+  }
+  if(new Set(all).size!==all.length){
+    const seen={};
+    for(const n of all){if(seen[n]) return `A ${n} SZÁM TÖBB POZÍCIÓBAN IS SZEREPEL!`;seen[n]=true;}
+  }
+  return null;
+}
+
+/* ── Progress bar animation ──────────────────────────────── */
+function showLoading(label, cb){
+  const total=24, dur=2800, stepMs=dur/total;
+  let i=0;
+  const iv=setInterval(()=>{
+    const el=document.getElementById('sb'+i);
+    if(el){el.classList.add('lit');}
+    i++;
+    if(i>=total){
+      clearInterval(iv);
+      setTimeout(()=>{
+        for(let j=0;j<total;j++){const e=document.getElementById('sb'+j);if(e){e.classList.remove('lit');}}
+        cb();
+      },400);
+    }
+  },stepMs);
+}
+
+function ujHuzas(){
+  S.drawn=Array(LOTTO[S.type].pos).fill('');
+  render3(false);
+}
+
+/* ── Fullscreen ───────────────────────────────────────── */
+function toggleFS(){
+  if(!document.fullscreenElement){
+    document.documentElement.requestFullscreen().catch(()=>{});
+    document.getElementById('fsbtn').textContent='⛶ KILÉPÉS';
+  } else {
+    document.exitFullscreen();
+    document.getElementById('fsbtn').textContent='⛶ TELJES KÉPERNYŐ';
+  }
+}
+document.addEventListener('fullscreenchange',()=>{
+  const btn=document.getElementById('fsbtn');
+  if(btn) btn.textContent=document.fullscreenElement?'⛶ KILÉPÉS':'⛶ TELJES KÉPERNYŐ';
+});
+
+/* ── Render ───────────────────────────────────────────── */
+function render(){
+  const app=document.getElementById('app');
+  if(S.step===0) app.innerHTML=step0();
+  else if(S.step===1) app.innerHTML=step1();
+  else if(S.step===2) app.innerHTML=step2();
+}
+function render3(doEval){
+  document.getElementById('app').innerHTML=step3(doEval);
+}
+
+render();
+</script>
+</body>
+</html>
