@@ -1,0 +1,2054 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>EgészségMonitor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #e8e6dc;
+  --card: #ffffff;
+  --card2: #fafaf8;
+  --input-bg: #f5f0e8;
+  --border: #e8e4dc;
+  --text: #1a1612;
+  --text2: #6b6560;
+  --text3: #9e9890;
+  --accent: #c8432a;
+  --accent2: #e85d3e;
+  --green: #2a7a4b;
+  --green-bg: #e8f5ee;
+  --blue: #1e4fa3;
+  --blue-bg: #e8eef8;
+  --amber: #b07014;
+  --amber-bg: #faf0dc;
+  --purple: #6b3fa0;
+  --purple-bg: #f0eaf8;
+  --morning: #2a7a4b;
+  --noon: #b07014;
+  --evening: #1e4fa3;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+}
+body.dark {
+  --bg: #2a2e2b;
+  --card: #d6cfc4;
+  --card2: #cec7bc;
+  --input-bg: #ede5d8;
+  --border: #9db8a4;
+  --text: #1a1612;
+  --text2: #4a5e50;
+  --text3: #7a9480;
+  --shadow: 0 1px 3px rgba(0,0,0,0.15), 0 4px 16px rgba(0,0,0,0.1);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.1);
+}
+body.dark .app-header h1{color:#c8d4ca;}
+body.dark .app-header p{color:#8fa693;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:15px;line-height:1.5}
+.app{max-width:980px;margin:0 auto;padding:20px 16px 40px}
+
+/* HEADER */
+.app-header{text-align:center;padding:32px 0 28px}
+.app-header h1{font-family:'DM Serif Display',serif;font-size:32px;color:var(--text);letter-spacing:-0.5px;margin-bottom:4px}
+.app-header p{color:var(--text2);font-size:14px}
+.header-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--accent);margin:0 8px;vertical-align:middle}
+
+/* TABS */
+.tabs{display:flex;gap:4px;background:var(--card2);border:1px solid var(--border);border-radius:50px;padding:4px;margin-bottom:24px}
+.tab{flex:1;text-align:center;padding:9px 12px;border-radius:50px;border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .2s}
+.tab.active{background:var(--accent);color:#fff;font-weight:700;box-shadow:0 2px 8px rgba(200,67,42,.35);border:none}
+.tab-panel{display:none}.tab-panel.active{display:block}
+
+/* CARDS */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:16px;box-shadow:var(--shadow)}
+.card-title{font-size:13px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:16px}
+.section-label{font-size:13px;font-weight:500;color:var(--text2);margin-bottom:8px;display:block}
+
+/* TIME PILLS */
+.time-row{display:flex;gap:8px;margin-bottom:18px}
+.time-pill{flex:1;padding:10px 8px;border:1.5px solid var(--border);border-radius:50px;background:transparent;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .18s;text-align:center}
+.time-pill.active[data-t="reggel"]{border-color:var(--morning);background:#b6e4c8;color:var(--morning);font-weight:700}
+.time-pill.active[data-t="délben"]{border-color:var(--noon);background:#f5d99a;color:var(--noon);font-weight:700}
+.time-pill.active[data-t="este"]{border-color:var(--evening);background:#b8cff0;color:var(--evening);font-weight:700}
+
+/* INPUTS */
+.input-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px}
+.input-group{display:flex;flex-direction:column;gap:5px}
+.input-group label{font-size:12px;font-weight:500;color:var(--text2)}
+input[type=number],input[type=text],input[type=date],input[type=time],select,textarea{
+  width:100%;padding:10px 12px;font-size:15px;font-family:'DM Sans',sans-serif;
+  border:1.5px solid var(--border);border-radius:var(--radius-sm);background:var(--input-bg);
+  color:var(--text);outline:none;transition:border-color .15s
+}
+input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+input[type=number]:out-of-range{border-color:#e57373;background:#fff5f5}
+.input-unit{display:flex;align-items:center;position:relative}
+.input-unit input{padding-right:40px}
+.input-unit span{position:absolute;right:12px;font-size:12px;color:var(--text3);pointer-events:none}
+
+/* TOGGLE ROW */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-top:1px solid var(--border)}
+.toggle-row:first-child{border-top:none;padding-top:0}
+.toggle-label{font-size:14px;font-weight:500;color:var(--text)}
+.toggle{width:44px;height:26px;appearance:none;background:#a8c8e8;border-radius:26px;position:relative;cursor:pointer;transition:.2s;flex-shrink:0;border:1.5px solid #7aaec8}
+.toggle:checked{background:var(--accent);border-color:var(--accent)}
+.toggle::before{content:'';width:20px;height:20px;background:#fff;border-radius:50%;position:absolute;top:1px;left:1px;transition:.2s;box-shadow:0 1px 4px rgba(0,0,0,.25)}
+.toggle:checked::before{left:21px}
+.collapsible{overflow:hidden;max-height:0;transition:max-height .3s ease;margin-top:0}
+.collapsible.open{max-height:200px;margin-top:10px}
+
+/* SAVE BUTTON */
+.btn-primary{width:100%;padding:14px;background:var(--accent);color:#fff;border:none;border-radius:50px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;transition:all .2s;margin-top:4px}
+.btn-primary:hover{background:var(--accent2);transform:translateY(-1px)}
+.btn-primary:active{transform:translateY(0)}
+.btn-secondary{padding:10px 18px;background:transparent;color:var(--text2);border:1.5px solid var(--border);border-radius:50px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s}
+.btn-secondary:hover{background:var(--card2);border-color:var(--text3)}
+.btn-danger{padding:10px 18px;background:transparent;color:#b91c1c;border:1.5px solid #fca5a5;border-radius:50px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s}
+.btn-danger:hover{background:#fef2f2}
+
+/* STAT CARDS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:20px}
+.stat-card{background:#ffffff;border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 12px;text-align:center}
+body.dark .stat-card{background:#f8f2e8;}
+.stat-value{font-family:'DM Serif Display',serif;font-size:24px;color:var(--text);line-height:1.1;margin-bottom:2px}
+.stat-label{font-size:11px;color:var(--text3);font-weight:500;text-transform:uppercase;letter-spacing:.4px}
+.stat-sub{font-size:11px;color:var(--text2);margin-top:3px}
+.stat-card.good .stat-value{color:var(--green)}
+.stat-card.warn .stat-value{color:var(--amber)}
+.stat-card.bad .stat-value{color:var(--accent)}
+
+/* CHART */
+.chart-type-row{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.chart-type-btn{padding:7px 14px;border:1.5px solid var(--border);border-radius:50px;background:transparent;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .15s}
+.chart-type-btn.active{border-color:var(--accent);background:#fdf0ed;color:var(--accent)}
+.chart-type-btn:disabled{opacity:.4;cursor:not-allowed}
+.time-filter-row{display:flex;gap:10px;margin-bottom:14px;align-items:center}
+.time-filter-row label{display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;font-weight:500;color:var(--text2)}
+.time-filter-row input[type=checkbox]{display:none}
+.filter-lbl{opacity:0.45;transition:opacity .15s;user-select:none}
+.filter-lbl.active-filter{opacity:1}
+.dot{display:inline-block;width:12px;height:12px;border-radius:50%;border:2px solid;transition:all .15s}
+.dot.morning{border-color:var(--morning);background:transparent}
+.dot.noon{border-color:var(--noon);background:transparent}
+.dot.evening{border-color:var(--evening);background:transparent}
+.dot.morning.filled{background:var(--morning)}
+.dot.noon.filled{background:var(--noon)}
+.dot.evening.filled{background:var(--evening)}
+.chart-wrap{position:relative;width:100%;height:300px}
+.chart-wrap canvas{width:100%!important;height:100%!important}
+
+/* MONTH SELECTOR */
+.month-row{display:flex;gap:10px;align-items:center;margin-bottom:16px}
+.month-row select{flex:1;padding:9px 12px;font-size:14px}
+
+/* HISTORY */
+.history-list{max-height:340px;overflow-y:auto;display:flex;flex-direction:column;gap:8px}
+.history-item{background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;transition:background .15s}
+.history-item:hover{background:#f0ede8}
+.history-main{flex:1}
+.history-date{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:3px;display:flex;align-items:center;gap:8px}
+.time-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:50px;font-size:11px;font-weight:600}
+.time-badge.reggel{background:var(--green-bg);color:var(--morning)}
+.time-badge.délben{background:var(--amber-bg);color:var(--noon)}
+.time-badge.este{background:var(--blue-bg);color:var(--evening)}
+.history-vals{font-size:14px;color:var(--text);font-weight:500}
+.history-extras{font-size:12px;color:var(--text2);margin-top:4px;display:flex;flex-wrap:wrap;gap:8px}
+.del-btn{background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:18px;line-height:1;padding:2px 4px;border-radius:6px;transition:color .15s;flex-shrink:0}
+.del-btn:hover{color:#b91c1c}
+
+/* MEDICINE TAB */
+.med-list{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+.med-card{background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.med-info{flex:1}
+.med-name{font-size:15px;font-weight:600;color:var(--text);margin-bottom:2px}
+.med-details{font-size:12px;color:var(--text2)}
+.med-today{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.dose-btn{padding:6px 12px;border-radius:50px;border:1.5px solid var(--border);background:transparent;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:5px}
+.dose-btn.taken{border-color:var(--green);background:var(--green-bg);color:var(--green)}
+.dose-btn.missed{border-color:#e57373;background:#fef2f2;color:#b91c1c}
+.med-actions{display:flex;flex-direction:column;gap:6px;align-items:flex-end}
+.icon-btn{background:transparent;border:none;cursor:pointer;color:var(--text3);font-size:16px;padding:4px;border-radius:6px;transition:color .15s}
+.icon-btn:hover{color:var(--text)}
+.med-adherence{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);margin-top:6px}
+.adh-bar{height:4px;border-radius:4px;background:var(--border);flex:1;overflow:hidden}
+.adh-fill{height:100%;border-radius:4px;background:var(--green);transition:width .4s}
+.med-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.med-times-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.med-time-pill{padding:7px 14px;border:1.5px solid var(--border);border-radius:50px;background:transparent;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .15s}
+.med-time-pill.active{border-color:var(--purple);background:var(--purple-bg);color:var(--purple)}
+.today-overview{background:linear-gradient(135deg,#1a1612 0%,#2d2520 100%);border-radius:var(--radius);padding:20px;margin-bottom:16px;color:#fff}
+body.dark .today-overview{background:linear-gradient(135deg,#0e1510 0%,#1a2a1e 100%)}
+
+/* LANGUAGE SELECTOR */
+.lang-select{position:fixed;top:16px;left:16px;z-index:200;background:var(--card);border:1.5px solid var(--border);border-radius:50px;padding:7px 14px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;box-shadow:var(--shadow-sm);transition:all .2s;outline:none;width:auto;max-width:fit-content}
+.lang-select:hover{background:var(--card2)}
+
+/* THEME TOGGLE */
+.theme-toggle{position:fixed;top:16px;right:16px;z-index:200;background:var(--card);border:1.5px solid var(--border);border-radius:50px;padding:7px 14px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;box-shadow:var(--shadow-sm);transition:all .2s;display:flex;align-items:center;gap:6px}
+.theme-toggle:hover{background:var(--card2);color:var(--text)}
+.today-overview h3{font-family:'DM Serif Display',serif;font-size:20px;margin-bottom:12px;opacity:.95}
+.today-meds{display:flex;flex-direction:column;gap:8px}
+.today-med-row{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:rgba(255,255,255,.08);border-radius:10px;font-size:13px}
+.today-med-name{font-weight:500;color:#fff}
+.today-med-status{font-size:11px;font-weight:600;padding:3px 10px;border-radius:50px}
+.status-taken{background:rgba(42,122,75,.3);color:#5ec989}
+.status-pending{background:rgba(255,255,255,.1);color:rgba(255,255,255,.6)}
+.status-missed{background:rgba(200,67,42,.3);color:#f08070}
+
+/* EXPORT ROW */
+.export-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.export-row button{flex:1;min-width:120px}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text);color:#fff;padding:11px 22px;border-radius:50px;font-size:13px;font-weight:500;z-index:1000;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* MONTH BADGE */
+.month-badge{background:var(--blue-bg);color:var(--blue);border-radius:50px;padding:7px 16px;font-size:13px;font-weight:600;text-align:center;margin-bottom:16px;display:inline-block;width:100%}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:32px 16px;color:var(--text3);font-size:14px}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--card);border-radius:var(--radius);padding:24px;width:100%;max-width:480px;box-shadow:0 8px 40px rgba(0,0,0,.15);transform:translateY(16px);transition:transform .2s}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-title{font-family:'DM Serif Display',serif;font-size:20px;margin-bottom:20px}
+.modal-footer{display:flex;gap:10px;margin-top:20px}
+.modal-footer button{flex:1}
+
+
+/* MAI GYÓGYSZEREK MODAL */
+.med-daily-item{background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
+.med-daily-name{font-size:14px;font-weight:600;color:var(--text)}
+.med-daily-meta{font-size:11px;color:var(--text2);margin-top:2px}
+.med-daily-btns{display:flex;gap:6px;flex-shrink:0}
+.med-daily-btn{width:38px;height:38px;border-radius:50%;border:2px solid var(--border);background:transparent;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.med-daily-btn.taken{border-color:var(--green);background:var(--green-bg)}
+.med-daily-btn.missed{border-color:#e57373;background:#fef2f2}
+.med-daily-btn:hover{transform:scale(1.1)}
+.med-cat-badge{display:inline-block;padding:1px 7px;border-radius:50px;font-size:10px;font-weight:600;margin-left:6px}
+.cat-vérnyomás{background:var(--green-bg);color:var(--green)}
+.cat-cukor{background:#fce7f3;color:#9d174d}
+.cat-súly{background:var(--amber-bg);color:var(--amber)}
+.cat-egyéb{background:var(--card2);color:var(--text2)}
+
+@media(max-width:600px){
+  .input-row{grid-template-columns:1fr 1fr}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .med-form-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<select class="lang-select" id="langSelect"><option value="hu">🇭🇺 Magyar</option><option value="en">🇬🇧 English</option><option value="de">🇩🇪 Deutsch</option><option value="fr">🇫🇷 Français</option></select>
+<button class="theme-toggle" id="themeToggle">🌙 Sötét</button>
+<div class="app">
+  <div class="app-header">
+    <h1 id="app-title">Egészség<span style="color:var(--accent)">Monitor</span></h1>
+    <p data-i18n="header_sub">Vérnyomás <span class="header-dot"></span> Súly <span class="header-dot"></span> Cukor <span class="header-dot"></span> Gyógyszerek</p>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="merés" data-i18n="tab_meres">📊 Mérés</button>
+    <button class="tab" data-tab="grafikon" data-i18n="tab_grafikon">📈 Grafikon</button>
+    <button class="tab" data-tab="gyogyszer" data-i18n="tab_gyogyszer">💊 Gyógyszerek</button>
+    <button class="tab" data-tab="nyomtatas" data-i18n="tab_nyomtatas">🖨️ Nyomtatás</button>
+  </div>
+
+  <!-- ===== MÉRÉS TAB ===== -->
+  <div class="tab-panel active" id="tab-merés">
+    <div class="card">
+      <div class="card-title" id="card-title-time">Időpont</div>
+      <div class="time-row">
+        <button class="time-pill" data-t="reggel">🌅 Reggel</button>
+        <button class="time-pill" data-t="délben">☀️ Délben</button>
+        <button class="time-pill" data-t="este">🌙 Este</button>
+      </div>
+      <div class="card-title" id="card-title-bp">Vérnyomás & Pulzus</div>
+      <div class="input-row">
+        <div class="input-group">
+          <label id="lbl-sys">Felső (sys)</label>
+          <div class="input-unit"><input type="number" id="sys" placeholder="120" min="60" max="250"><span>Hgmm</span></div>
+        </div>
+        <div class="input-group">
+          <label id="lbl-dia">Alsó (dia)</label>
+          <div class="input-unit"><input type="number" id="dia" placeholder="80" min="40" max="160"><span>Hgmm</span></div>
+        </div>
+        <div class="input-group">
+          <label id="lbl-pulse">Pulzus</label>
+          <div class="input-unit"><input type="number" id="pulse" placeholder="72" min="30" max="220"><span>bpm</span></div>
+        </div>
+      </div>
+      <div class="toggle-row">
+        <span class="toggle-label">⚖️ Súly rögzítése</span>
+        <input type="checkbox" class="toggle" id="togW">
+      </div>
+      <div class="collapsible" id="colW">
+        <div class="input-unit" style="margin-bottom:10px">
+          <input type="number" id="weight" step="0.1" placeholder="72.5" min="20" max="300"><span>kg</span>
+        </div>
+      </div>
+      <div class="toggle-row">
+        <span class="toggle-label">🩸 Vércukor rögzítése</span>
+        <input type="checkbox" class="toggle" id="togS">
+      </div>
+      <div class="collapsible" id="colS">
+        <div class="input-unit" style="margin-bottom:10px">
+          <input type="number" id="sugar" step="0.1" placeholder="5.2" min="1" max="40"><span>mmol/L</span>
+        </div>
+      </div>
+      <div class="toggle-row" id="medDailyToggleRow">
+        <div style="display:flex;align-items:center;gap:8px;flex:1">
+          <span class="toggle-label" id="lbl-tog-med">💊 Gyógyszeres kezelés</span>
+          <span id="medDailyBadge" style="display:none;background:var(--green-bg);color:var(--green);font-size:11px;font-weight:600;padding:2px 8px;border-radius:50px"></span>
+        </div>
+        <input type="checkbox" class="toggle" id="togMedDaily">
+      </div>
+      <div class="collapsible" id="colMedDaily">
+        <div id="medDailyPanel" style="margin:8px 0 12px 0"></div>
+      </div>
+      <button class="btn-primary" id="saveBtn">💾 Mérés mentése</button>
+    </div>
+
+    <!-- STATS KÁRTYA -->
+    <div class="card" id="statsCard">
+      <div class="card-title" id="stats-card-title">Havi statisztikák</div>
+      <div class="stats-grid" id="statsGrid">
+        <div class="empty">Még nincs adat</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== GRAFIKON TAB ===== -->
+  <div class="tab-panel" id="tab-grafikon">
+    <div class="card">
+      <div class="month-row">
+        <select id="chartMonth"></select>
+        <button class="btn-secondary" id="refreshChart">🔄</button>
+      </div>
+      <div class="chart-type-row" id="chartTypeRow">
+        <button class="chart-type-btn active" data-ct="bp" id="ctBp">❤️ Vérnyomás</button>
+        <button class="chart-type-btn" data-ct="weight" id="ctWeight">⚖️ Súly</button>
+        <button class="chart-type-btn" data-ct="sugar" id="ctSugar">🩸 Cukor</button>
+      </div>
+      <div class="time-filter-row">
+        <label id="filterLblMorning" class="filter-lbl active-filter"><input type="checkbox" id="fMorning" checked style="display:none"><span class="dot morning filled"></span><span class="label-text">Reggel</span></label>
+        <label id="filterLblNoon" class="filter-lbl active-filter"><input type="checkbox" id="fNoon" checked style="display:none"><span class="dot noon filled"></span><span class="label-text">Délben</span></label>
+        <label id="filterLblEvening" class="filter-lbl active-filter"><input type="checkbox" id="fEvening" checked style="display:none"><span class="dot evening filled"></span><span class="label-text">Este</span></label>
+      </div>
+      <div class="chart-wrap"><canvas id="mainChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- ===== GYÓGYSZEREK TAB ===== -->
+  <div class="tab-panel" id="tab-gyogyszer">
+    <div class="card">
+      <div class="card-title" id="my-meds-title">Gyógyszereim</div>
+      <div class="med-list" id="medList"><div class="empty" id="med-list-empty">Még nincs rögzített gyógyszer</div></div>
+      <button class="btn-primary" id="addMedBtn" style="margin-top:12px">+ Új gyógyszer hozzáadása</button>
+    </div>
+  </div>
+
+  <!-- ===== NYOMTATÁS TAB ===== -->
+  <div class="tab-panel" id="tab-nyomtatas">
+    <div class="card">
+      <div class="card-title" id="hist-card-title">Előzmények megtekintése</div>
+      <div class="month-row">
+        <select id="histMonth"></select>
+        <button class="btn-secondary" id="refreshHist">🔄</button>
+      </div>
+      <div class="history-list" id="histList"><div class="empty">Nincs adat</div></div>
+      <div class="export-row" style="margin-top:16px">
+        <button class="btn-danger" id="clearBtn">🗑️ Adatok törlése</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title" id="export-card-title">Exportálás / Nyomtatás</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+        <div style="background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:18px 16px;text-align:center">
+          <div style="font-size:28px;margin-bottom:8px">📄</div>
+          <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px" id="csv-card-title">CSV export</div>
+          <div style="font-size:12px;color:var(--text2);margin-bottom:14px" id="csv-card-sub">Táblázat, Excel-be importálható</div>
+          <button class="btn-secondary" id="exportCsvBtn" style="width:100%">⬇️ CSV letöltése</button>
+        </div>
+        <div style="background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:18px 16px;text-align:center">
+          <div style="font-size:28px;margin-bottom:8px">🖨️</div>
+          <div style="font-size:14px;font-weight:600;color:var(--text);margin-bottom:4px" id="pdf-card-title">PDF jelentés</div>
+          <div style="font-size:12px;color:var(--text2);margin-bottom:14px" id="pdf-card-sub">Grafikonok + táblázatok nyomtatáshoz</div>
+          <button class="btn-primary" id="exportPdfBtn" style="width:100%">🖨️ PDF megnyitása</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GYÓGYSZER MODAL -->
+<div class="modal-overlay" id="medModal">
+  <div class="modal">
+    <div class="modal-title" id="medModalTitle">Új gyógyszer</div>
+    <div class="med-form-grid">
+      <div class="input-group" style="grid-column:1/-1">
+        <label id="lbl-med-name">Gyógyszer neve *</label>
+        <input type="text" id="medName" placeholder="pl. Lisinopril">
+      </div>
+      <div class="input-group" style="grid-column:1/-1">
+        <label id="lbl-med-cat">Betegség / kategória</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:2px" id="medCatRow">
+          <button type="button" class="med-time-pill" data-cat="vérnyomás" id="medCatBp">❤️ Vérnyomás</button>
+          <button type="button" class="med-time-pill" data-cat="cukor" id="medCatSugar">🩸 Cukor</button>
+          <button type="button" class="med-time-pill" data-cat="súly" id="medCatWeight">⚖️ Súly</button>
+          <button type="button" class="med-time-pill" data-cat="egyéb" id="medCatOther">💊 Egyéb</button>
+        </div>
+      </div>
+      <div class="input-group">
+        <label id="lbl-med-dose">Dózis</label>
+        <input type="text" id="medDose" placeholder="pl. 10mg">
+      </div>
+      <div class="input-group">
+        <label id="lbl-med-duration">Szedés időtartama</label>
+        <input type="text" id="medDuration" placeholder="pl. Folyamatos">
+      </div>
+      <div class="input-group" style="grid-column:1/-1">
+        <label id="lbl-med-note">Megjegyzés</label>
+        <input type="text" id="medNote" placeholder="pl. étkezés előtt">
+      </div>
+    </div>
+    <label class="section-label" id="med-when-lbl">Mikor kell bevenni?</label>
+    <div class="med-times-row" id="medTimesRow">
+      <button type="button" class="med-time-pill" data-mt="reggel">🌅 Reggel</button>
+      <button type="button" class="med-time-pill" data-mt="délben">☀️ Délben</button>
+      <button type="button" class="med-time-pill" data-mt="este">🌙 Este</button>
+      <button type="button" class="med-time-pill" data-mt="lefekvés">🌛 Lefekvés</button>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" id="medCancelBtn">Mégse</button>
+      <button class="btn-primary" id="medSaveBtn">Mentés</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ADOMÁNY MODAL -->
+<div class="modal-overlay" id="donateModal" style="background:rgba(0,0,0,0.55)">
+  <div class="modal" style="max-width:420px;text-align:center">
+    <div style="font-size:40px;margin-bottom:12px">☕</div>
+    <div class="modal-title" id="donate-title" style="font-size:22px;margin-bottom:8px">Köszönjük, hogy használja!</div>
+    <p id="donate-thanks" style="font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:12px;font-style:italic">
+      Hálásak vagyunk minden felhasználónak, aki nap mint nap megbízza egészségének nyomon követését az EgészségMonitornak.
+    </p>
+    <p style="font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:20px">
+      <span id="donate-body-text">Az alkalmazás teljesen ingyenes. Ha hasznosnak találja, kérjük támogassa egy jelképes összeggel — egy kávé árával</span>
+      (<strong>365 Ft</strong>).
+    </p>
+    <div style="background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 18px;margin-bottom:20px;text-align:left">
+      <div id="donate-beneficiary-lbl" style="font-size:12px;color:var(--text2);margin-bottom:4px">Kedvezményezett</div>
+      <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:10px">Váradi Elemér</div>
+      <div id="donate-account-lbl" style="font-size:12px;color:var(--text2);margin-bottom:4px">OTP bankszámlaszám</div>
+      <div style="font-size:16px;font-weight:600;color:var(--text);letter-spacing:1px;font-family:'DM Serif Display',serif">11773188-00556752</div>
+    </div>
+    <p style="font-size:12px;color:var(--text3);margin-bottom:20px">
+      Program: <strong>Claude AI + Váradi Elemér</strong> ❤️
+    </p>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <button class="btn-primary" id="donateDoneBtn">✓ Köszönöm, már átutaltam!</button>
+      <button class="btn-secondary" id="donateLaterBtn">⏰ Emlékeztess 30 nap múlva</button>
+      <button class="btn-secondary" id="donateSkipBtn" style="font-size:12px;color:var(--text3);border-color:transparent">Kihagyom</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// STATE
+// ============================================================
+const S = {
+  measurements: {},   // { "2025-04": [{date,time,sys,dia,pulse,weight?,sugar?,note?}] }
+  medicines: [],      // [{id,name,dose,duration,note,times:[],log:{}}]
+  weightOn: false,
+  sugarOn: false,
+  currentTime: 'reggel',
+  chartMonth: '',
+  histMonth: '',
+  chartType: 'bp',
+  chartInst: null,
+  editMedId: null,
+  medSelectedTimes: new Set(),
+  medSelectedCat: ''
+};
+
+// ============================================================
+// PERSISTENCE
+// ============================================================
+function load() {
+  try {
+    const m = localStorage.getItem('egmon_v2_meas');
+    if (m) S.measurements = JSON.parse(m);
+    const meds = localStorage.getItem('egmon_v2_meds');
+    if (meds) S.medicines = JSON.parse(meds);
+    S.weightOn = localStorage.getItem('egmon_w') === '1';
+    S.sugarOn = localStorage.getItem('egmon_s') === '1';
+  } catch(e) {}
+}
+
+function save() {
+  localStorage.setItem('egmon_v2_meas', JSON.stringify(S.measurements));
+  localStorage.setItem('egmon_v2_meds', JSON.stringify(S.medicines));
+  localStorage.setItem('egmon_w', S.weightOn ? '1' : '0');
+  localStorage.setItem('egmon_s', S.sugarOn ? '1' : '0');
+}
+
+// ============================================================
+// UTILS
+// ============================================================
+function today() {
+  return new Date().toISOString().slice(0,10);
+}
+function yearMonth(d) {
+  return d.slice(0,7);
+}
+function currentYM() {
+  return today().slice(0,7);
+}
+function monthLabel(ym) {
+  const [y,m] = ym.split('-');
+  const names = ['január','február','március','április','május','június','július','augusztus','szeptember','október','november','december'];
+  return `${y}. ${names[+m-1]}`;
+}
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 2800);
+}
+function getMeasurements(ym) {
+  return S.measurements[ym] || [];
+}
+function autoTime() {
+  const h = new Date().getHours();
+  if (h >= 1 && h <= 10) return 'reggel';
+  if (h >= 11 && h <= 16) return 'délben';
+  return 'este';
+}
+function medId() {
+  return 'med_' + Date.now() + Math.random().toString(36).slice(2,6);
+}
+function allYMs() {
+  return Object.keys(S.measurements).filter(k => (S.measurements[k]||[]).length > 0).sort().reverse();
+}
+
+// ============================================================
+// INIT UI STATE
+// ============================================================
+function initToggles() {
+  document.getElementById('togW').checked = S.weightOn;
+  document.getElementById('togS').checked = S.sugarOn;
+  document.getElementById('colW').classList.toggle('open', S.weightOn);
+  document.getElementById('colS').classList.toggle('open', S.sugarOn);
+}
+function setTime(t) {
+  S.currentTime = t;
+  document.querySelectorAll('.time-pill').forEach(p => {
+    p.classList.toggle('active', p.dataset.t === t);
+  });
+  // Frissíti a panelt ha nyitva van
+  if (document.getElementById('colMedDaily')?.classList.contains('open')) {
+    renderMedDailyPanel();
+  }
+}
+
+// ============================================================
+// SAVE MEASUREMENT
+// ============================================================
+function saveMeasurement() {
+  const sysEl   = document.getElementById('sys');
+  const diaEl   = document.getElementById('dia');
+  const pulseEl = document.getElementById('pulse');
+  const sys   = parseInt(sysEl.value);
+  const dia   = parseInt(diaEl.value);
+  const pulse = parseInt(pulseEl.value);
+
+  // Kötelező mezők
+  if (isNaN(sys) || isNaN(dia) || isNaN(pulse)) {
+    toast(t('warn_bp')); return;
+  }
+
+  // Élettani határok ellenőrzése
+  const limits = [
+    { el: sysEl,   v: sys,   min: 60,  max: 250, label: t('lbl_sys')   + ' (60–250 Hgmm)' },
+    { el: diaEl,   v: dia,   min: 40,  max: 160, label: t('lbl_dia')   + ' (40–160 Hgmm)' },
+    { el: pulseEl, v: pulse, min: 30,  max: 220, label: t('lbl_pulse') + ' (30–220 bpm)'  },
+  ];
+  if (S.weightOn) {
+    const w = parseFloat(document.getElementById('weight').value);
+    if (!isNaN(w)) limits.push({ el: document.getElementById('weight'), v: w, min: 20, max: 300, label: '⚖️ (20–300 kg)' });
+  }
+  if (S.sugarOn) {
+    const sg = parseFloat(document.getElementById('sugar').value);
+    if (!isNaN(sg)) limits.push({ el: document.getElementById('sugar'), v: sg, min: 1, max: 40, label: '🩸 (1–40 mmol/L)' });
+  }
+
+  const errors = limits.filter(l => l.v < l.min || l.v > l.max);
+  if (errors.length > 0) {
+    errors.forEach(l => {
+      l.el.style.borderColor = '#e57373';
+      setTimeout(() => { l.el.style.borderColor = ''; }, 3000);
+    });
+    toast('⚠️ ' + errors.map(l => l.label).join(', '));
+    return;
+  }
+
+  // Figyelmeztetés kiugró értékre (de elmenti)
+  const warnings = [];
+  if (sys > 160 || sys < 80)    warnings.push('⚠️ ' + t('lbl_sys')   + ' kiugró!');
+  if (pulse > 120 || pulse < 45) warnings.push('⚠️ ' + t('lbl_pulse') + ' kiugró!');
+
+  const ym = currentYM();
+  if (!S.measurements[ym]) S.measurements[ym] = [];
+  const arr = S.measurements[ym];
+  const entry = { date: today(), time: S.currentTime, sys, dia, pulse };
+  if (S.weightOn) { const w = parseFloat(document.getElementById('weight').value); if (!isNaN(w)) entry.weight = w; }
+  if (S.sugarOn)  { const sg = parseFloat(document.getElementById('sugar').value);  if (!isNaN(sg)) entry.sugar = sg; }
+  const idx = arr.findIndex(e => e.date === entry.date && e.time === entry.time);
+  if (idx >= 0) arr[idx] = entry; else arr.push(entry);
+  arr.sort((a,b) => a.date.localeCompare(b.date));
+  save();
+  ['sys','dia','pulse','weight','sugar'].forEach(id => { const el = document.getElementById(id); if(el) el.value=''; });
+  const msg = warnings.length ? warnings.join(' ') + ' — ' + t('toast_saved') : t('toast_saved') + ': ' + entry.date + ' · ' + entry.time;
+  toast(msg);
+  renderStats();
+  renderMonthSelectors();
+  if (document.getElementById('tab-grafikon').classList.contains('active')) renderChart();
+}
+
+// ============================================================
+// STATS
+// ============================================================
+function renderStats() {
+  const ym = currentYM();
+  const data = getMeasurements(ym);
+  const grid = document.getElementById('statsGrid');
+  if (!data.length) { grid.innerHTML = '<div class="empty" id="stats-empty-msg">Még nincs adat ebben a hónapban</div>'; return; }
+
+  const sys = data.map(d=>d.sys).filter(Boolean);
+  const dia = data.map(d=>d.dia).filter(Boolean);
+  const pulses = data.map(d=>d.pulse).filter(Boolean);
+  const weights = data.map(d=>d.weight).filter(Boolean);
+  const sugars = data.map(d=>d.sugar).filter(Boolean);
+
+  const avg = arr => arr.length ? Math.round(arr.reduce((a,b)=>a+b,0)/arr.length) : null;
+  const max = arr => arr.length ? Math.max(...arr) : null;
+  const min = arr => arr.length ? Math.min(...arr) : null;
+
+  const avgSys = avg(sys), avgDia = avg(dia);
+  const bpClass = avgSys && avgSys > 140 ? 'bad' : avgSys && avgSys > 130 ? 'warn' : 'good';
+
+  let html = '';
+  if (avgSys) html += `<div class="stat-card ${bpClass}"><div class="stat-value">${avgSys}/${avgDia}</div><div class="stat-label">${t('stat_avg_bp')}</div><div class="stat-sub">Max: ${max(sys)}/${max(dia)}</div></div>`;
+  if (pulses.length) html += `<div class="stat-card"><div class="stat-value">${avg(pulses)}</div><div class="stat-label">${t('stat_avg_pulse')}</div><div class="stat-sub">${min(pulses)}–${max(pulses)} bpm</div></div>`;
+  if (weights.length) html += `<div class="stat-card"><div class="stat-value">${(weights.reduce((a,b)=>a+b,0)/weights.length).toFixed(1)}</div><div class="stat-label">${t('stat_avg_weight')}</div><div class="stat-sub">${min(weights)}–${max(weights)} kg</div></div>`;
+  if (sugars.length) { const avgSg = (sugars.reduce((a,b)=>a+b,0)/sugars.length).toFixed(1); const sgClass = +avgSg > 6 ? 'bad' : +avgSg > 5.9 ? 'warn' : 'good'; html += `<div class="stat-card ${sgClass}"><div class="stat-value">${avgSg}</div><div class="stat-label">${t('stat_avg_sugar')}</div><div class="stat-sub">${min(sugars)}–${max(sugars)} mmol/L</div></div>`; }
+  html += `<div class="stat-card"><div class="stat-value">${data.length}</div><div class="stat-label">${t('stat_count')}</div><div class="stat-sub">${new Set(data.map(d=>d.date)).size} ${t('stat_days')}</div></div>`;
+  grid.innerHTML = html;
+}
+
+// ============================================================
+// MONTH SELECTORS
+// ============================================================
+function renderMonthSelectors() {
+  const yms = allYMs();
+  const cur = currentYM();
+  if (!yms.includes(cur) && (S.measurements[cur]||[]).length === 0) yms.unshift(cur);
+
+  ['chartMonth','histMonth'].forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    const prev = sel.value || cur;
+    sel.innerHTML = yms.map(ym => `<option value="${ym}" ${ym===prev?'selected':''}>${monthLabel(ym)}</option>`).join('') || `<option value="${cur}">${monthLabel(cur)}</option>`;
+    if (id === 'chartMonth') S.chartMonth = sel.value;
+    if (id === 'histMonth') S.histMonth = sel.value;
+  });
+}
+
+// ============================================================
+// CHART
+// ============================================================
+function renderChart() {
+  const ym = document.getElementById('chartMonth')?.value || currentYM();
+  const data = getMeasurements(ym);
+  const canvas = document.getElementById('mainChart');
+  if (!canvas) return;
+  if (S.chartInst) { S.chartInst.destroy(); S.chartInst = null; }
+
+  if (!data.length) {
+    const ctx = canvas.getContext('2d');
+    canvas.width = canvas.parentElement.clientWidth;
+    canvas.height = 300;
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle='#9e9890'; ctx.font='14px DM Sans,sans-serif'; ctx.textAlign='center';
+    ctx.fillText('Nincs adat ebben a hónapban', canvas.width/2, 150);
+    return;
+  }
+
+  const showMorning = document.getElementById('fMorning').checked;
+  const showNoon = document.getElementById('fNoon').checked;
+  const showEvening = document.getElementById('fEvening').checked;
+  const dates = [...new Set(data.map(d=>d.date))].sort();
+  const labels = dates.map(d=>d.slice(5));
+
+  const getVals = (timeKey, field) => dates.map(dt => {
+    const m = data.find(d=>d.date===dt && d.time===timeKey);
+    return m ? (m[field]??null) : null;
+  });
+
+  const datasets = [];
+  const ct = S.chartType;
+
+  if (ct === 'bp') {
+    if (showMorning) datasets.push({ label:'Reggel', data:getVals('reggel','sys'), borderColor:'#2a7a4b', backgroundColor:'rgba(42,122,75,.08)', tension:.25, fill:true, pointRadius:4, spanGaps:true });
+    if (showNoon) datasets.push({ label:'Délben', data:getVals('délben','sys'), borderColor:'#b07014', backgroundColor:'rgba(176,112,20,.08)', tension:.25, fill:true, pointRadius:4, spanGaps:true });
+    if (showEvening) datasets.push({ label:'Este', data:getVals('este','sys'), borderColor:'#1e4fa3', backgroundColor:'rgba(30,79,163,.08)', tension:.25, fill:true, pointRadius:4, spanGaps:true });
+  } else if (ct === 'weight') {
+    if (showMorning) datasets.push({ label:'Reggel', data:getVals('reggel','weight'), borderColor:'#2a7a4b', backgroundColor:'rgba(42,122,75,.08)', tension:.25, fill:true, pointRadius:4, spanGaps:true });
+    if (showNoon) datasets.push({ label:'Délben', data:getVals('délben','weight'), borderColor:'#b07014', backgroundColor:'rgba(176,112,20,.08)', tension:.25, fill:true, pointRadius:4, spanGaps:true });
+    if (showEvening) datasets.push({ label:'Este', data:getVals('este','weight'), borderColor:'#1e4fa3', backgroundColor:'rgba(30,79,163,.08)', tension:.25, fill:true, pointRadius:4, spanGaps:true });
+  } else {
+    if (showMorning) datasets.push({ label:'Reggel', data:getVals('reggel','sugar'), borderColor:'#6b3fa0', backgroundColor:'rgba(107,63,160,.08)', tension:.25, fill:true, pointRadius:4, spanGaps:true });
+    if (showNoon) datasets.push({ label:'Délben', data:getVals('délben','sugar'), borderColor:'#b07014', backgroundColor:'rgba(176,112,20,.08)', tension:.25, fill:true, pointRadius:4, spanGaps:true });
+    if (showEvening) datasets.push({ label:'Este', data:getVals('este','sugar'), borderColor:'#1e4fa3', backgroundColor:'rgba(30,79,163,.08)', tension:.25, fill:true, pointRadius:4, spanGaps:true });
+  }
+
+  const yLabels = { bp:'Vérnyomás (Hgmm)', weight:'Súly (kg)', sugar:'Vércukor (mmol/L)' };
+
+  S.chartInst = new Chart(canvas, {
+    type:'line',
+    data: { labels, datasets },
+    options: {
+      responsive:true, maintainAspectRatio:false,
+      plugins: { legend:{ display:false }, tooltip:{ mode:'index', intersect:false } },
+      scales: {
+        y:{ title:{display:true,text:yLabels[ct],font:{size:11,family:'DM Sans'}}, grid:{color:'#e8e4dc'}, ticks:{font:{size:11}} },
+        x:{ grid:{color:'#e8e4dc'}, ticks:{maxRotation:45,autoSkip:true,font:{size:10}} }
+      }
+    }
+  });
+}
+
+// ============================================================
+// HISTORY
+// ============================================================
+function renderHistory() {
+  const ym = document.getElementById('histMonth')?.value || currentYM();
+  const data = [...getMeasurements(ym)].sort((a,b) => b.date.localeCompare(a.date)||b.time.localeCompare(a.time));
+  const el = document.getElementById('histList');
+  if (!data.length) { el.innerHTML='<div class="empty">'+t('hist_empty')+'</div>'; return; }
+
+  el.innerHTML = data.map((m,i) => {
+    const extras = [];
+    if (m.weight) extras.push(`⚖️ ${m.weight} kg`);
+    if (m.sugar) extras.push(`🩸 ${m.sugar} mmol/L`);
+    if (m.note) extras.push(`📝 ${m.note}`);
+    const origIdx = (S.measurements[ym]||[]).findIndex(e=>e.date===m.date&&e.time===m.time);
+    return `<div class="history-item">
+      <div class="history-main">
+        <div class="history-date">
+          <strong>${m.date}</strong>
+          <span class="time-badge ${m.time}">${m.time}</span>
+        </div>
+        <div class="history-vals">❤️ ${m.sys}/${m.dia} Hgmm &nbsp;·&nbsp; 💓 ${m.pulse} bpm</div>
+        ${extras.length?`<div class="history-extras">${extras.join(' &nbsp; ')}</div>`:''}
+      </div>
+      <button class="del-btn" data-ym="${ym}" data-idx="${origIdx}" title="Törlés">×</button>
+    </div>`;
+  }).join('');
+}
+
+// ============================================================
+// MEDICINES – lista (Gyógyszerek tab)
+// ============================================================
+function renderMedicines() {
+  const el = document.getElementById('medList');
+  if (!el) return;
+  if (!S.medicines.length) {
+    el.innerHTML = '<div class="empty">' + t('my_meds_empty') + '</div>';
+    renderMedDailyPanel();
+    updateMedDailyBadge();
+    return;
+  }
+  el.innerHTML = S.medicines.map(med => {
+    const catColors = { 'vérnyomás':'var(--green-bg);color:var(--green)', 'cukor':'#fce7f3;color:#9d174d', 'súly':'var(--amber-bg);color:var(--amber)', 'egyéb':'var(--card2);color:var(--text2)' };
+    const catStyle = catColors[med.category||'egyéb'] || catColors['egyéb'];
+    const catBg = catStyle.split(';')[0].replace('background:','');
+    const catFg = catStyle.split(';')[1];
+    const catBadge = med.category ? `<span style="background:${catBg};${catFg};padding:1px 7px;border-radius:50px;font-size:10px;font-weight:600;margin-left:6px">${med.category}</span>` : '';
+    const timeBadges = med.times.map(tm => `<span style="background:var(--card2);border:1px solid var(--border);border-radius:50px;padding:1px 8px;font-size:11px;color:var(--text2)">${tm}</span>`).join(' ');
+    const totalDoses = Object.keys(med.log||{}).length;
+    const takenDoses = Object.values(med.log||{}).filter(v=>v==='taken').length;
+    const pct = totalDoses ? Math.round(takenDoses/totalDoses*100) : 0;
+    return `<div class="med-card">
+      <div class="med-info">
+        <div class="med-name">${med.name}${catBadge}</div>
+        <div style="margin-top:4px;display:flex;flex-wrap:wrap;gap:4px">${timeBadges}</div>
+        <div class="med-details">${[med.dose,med.duration,med.note].filter(Boolean).join(' · ')}</div>
+        ${totalDoses>0?`<div class="med-adherence"><div class="adh-bar"><div class="adh-fill" style="width:${pct}%"></div></div><span>${pct}% rendszeres</span></div>`:''}
+      </div>
+      <div class="med-actions">
+        <button class="icon-btn" data-edit="${med.id}" title="Szerkesztés">✏️</button>
+        <button class="icon-btn" data-delmed="${med.id}" title="Törlés">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+  renderMedDailyPanel();
+  updateMedDailyBadge();
+}
+
+// Napi gyógyszer panel a Mérés tabon (toggle alatt)
+function renderMedDailyPanel() {
+  const panel = document.getElementById('medDailyPanel');
+  if (!panel) return;
+  const td = today();
+  const timeOfDay = S.currentTime;
+
+  if (!S.medicines.length) {
+    panel.innerHTML = '<div style="font-size:13px;color:var(--text3);padding:8px 0">'+t('med_panel_empty')+'</div>';
+    return;
+  }
+
+  // Show medicines relevant to current time of day (or all if none match)
+  const relevant = S.medicines.filter(m => m.times.includes(timeOfDay));
+  const shown = relevant.length ? relevant : S.medicines;
+
+  panel.innerHTML = shown.map(med => {
+    const key = td + '_' + timeOfDay;
+    const status = (med.log||{})[key] || 'pending';
+    const statusStyles = {
+      taken:   { bg:'var(--green-bg)', color:'var(--green)', icon:'✓', label:'Bevette' },
+      missed:  { bg:'#fee2e2', color:'#b91c1c', icon:'✗', label:'Kihagyta' },
+      pending: { bg:'var(--card2)', color:'var(--text2)', icon:'○', label:'Függőben' }
+    };
+    const ss = statusStyles[status];
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:${ss.bg};border-radius:var(--radius-sm);margin-bottom:6px;gap:10px">
+      <span style="font-size:13px;font-weight:500;color:var(--text);flex:1">${med.name}${med.dose?' <span style="font-weight:400;color:var(--text2);font-size:12px">'+med.dose+'</span>':''}</span>
+      <button class="dose-quick-btn" data-med="${med.id}" data-time="${timeOfDay}" data-status="${status}"
+        style="padding:5px 14px;border-radius:50px;border:1.5px solid ${ss.color};background:transparent;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;color:${ss.color};cursor:pointer;white-space:nowrap">
+        ${ss.icon} ${ss.label}
+      </button>
+    </div>`;
+  }).join('');
+
+  // Save med log button
+  panel.innerHTML += '<button id="saveMedLogBtn" class="btn-secondary" style="width:100%;margin-top:4px;font-size:13px">'+t('med_log_save')+'</button>';
+}
+
+function updateMedDailyBadge() {
+  const badge = document.getElementById('medDailyBadge');
+  if (!badge) return;
+  const td = today();
+  const taken = S.medicines.filter(m =>
+    m.times.some(t => (m.log||{})[td+'_'+t] === 'taken')
+  ).length;
+  if (!S.medicines.length) { badge.style.display='none'; return; }
+  badge.style.display = 'inline-block';
+  badge.textContent = `${taken}/${S.medicines.length}`;
+}
+
+
+function openMedModal(id) {
+  S.editMedId = id || null;
+  S.medSelectedTimes = new Set();
+  S.medSelectedCat = '';
+  const modal = document.getElementById('medModal');
+  document.getElementById('medModalTitle').textContent = id ? 'Gyógyszer szerkesztése' : 'Új gyógyszer';
+  if (id) {
+    const med = S.medicines.find(m=>m.id===id);
+    if (med) {
+      document.getElementById('medName').value = med.name;
+      document.getElementById('medDose').value = med.dose||'';
+      document.getElementById('medDuration').value = med.duration||'';
+      document.getElementById('medNote').value = med.note||'';
+      S.medSelectedTimes = new Set(med.times);
+      S.medSelectedCat = med.category||'';
+    }
+  } else {
+    ['medName','medDose','medDuration','medNote'].forEach(i=>document.getElementById(i).value='');
+  }
+  document.querySelectorAll('[data-mt]').forEach(p => {
+    p.classList.toggle('active', S.medSelectedTimes.has(p.dataset.mt));
+  });
+  document.querySelectorAll('[data-cat]').forEach(p => {
+    p.classList.toggle('active', p.dataset.cat === S.medSelectedCat);
+  });
+  modal.classList.add('open');
+}
+
+function saveMed() {
+  const name = document.getElementById('medName').value.trim();
+  if (!name) { toast(t('warn_med_name')); return; }
+  const med = {
+    id: S.editMedId || medId(),
+    name,
+    category: S.medSelectedCat,
+    dose: document.getElementById('medDose').value.trim(),
+    duration: document.getElementById('medDuration').value.trim(),
+    note: document.getElementById('medNote').value.trim(),
+    times: [...S.medSelectedTimes],
+    log: {}
+  };
+  if (S.editMedId) {
+    const idx = S.medicines.findIndex(m=>m.id===S.editMedId);
+    if (idx>=0) { med.log = S.medicines[idx].log||{}; S.medicines[idx]=med; }
+  } else {
+    S.medicines.push(med);
+  }
+  save();
+  document.getElementById('medModal').classList.remove('open');
+  renderMedicines();
+  toast('✅ '+name+' '+t('btn_save').toLowerCase()+'e');
+}
+
+function logDose(medId, time, currentStatus) {
+  const med = S.medicines.find(m=>m.id===medId);
+  if (!med) return;
+  if (!med.log) med.log={};
+  const key = `${today()}_${time}`;
+  const cycle = ['pending','taken','missed'];
+  const next = cycle[(cycle.indexOf(currentStatus)+1)%cycle.length];
+  if (next === 'pending') delete med.log[key]; else med.log[key]=next;
+  save();
+  renderMedicines();
+}
+
+// ============================================================
+// EXPORT – CSV (önálló)
+// ============================================================
+function exportCsv() {
+  const ym = document.getElementById('histMonth')?.value || currentYM();
+  const data = getMeasurements(ym);
+  if (!data.length) { toast(t('toast_no_data')); return; }
+  const rows = [['Dátum','Időpont','Felső','Alsó','Pulzus','Súly(kg)','Cukor(mmol/L)','Megjegyzés']];
+  data.forEach(m => rows.push([m.date,m.time,m.sys,m.dia,m.pulse,m.weight||'',m.sugar||'',m.note||'']));
+  const csv = rows.map(r=>r.join(';')).join('\n');
+  const blob = new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download=`egmon_${ym}.csv`; a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  toast(t('toast_csv'));
+}
+
+// ============================================================
+// EXPORT – PDF nyomtatási ablak (önálló)
+// =========================================================
+function exportPdf() {
+  // Pre-evaluate translations (t() not available in PDF window)
+  const _pdf = {
+    add_med_btn: t('add_med_btn'),
+    bp_title: t('bp_title'),
+    btn_cancel: t('btn_cancel'),
+    btn_save: t('btn_save'),
+    chart_bp: t('chart_bp'),
+    chart_sugar: t('chart_sugar'),
+    chart_weight: t('chart_weight'),
+    clear_btn: t('clear_btn'),
+    csv_btn: t('csv_btn'),
+    csv_sub: t('csv_sub'),
+    csv_title: t('csv_title'),
+    dark: t('dark'),
+    donate_account: t('donate_account'),
+    donate_beneficiary: t('donate_beneficiary'),
+    donate_body: t('donate_body'),
+    donate_done: t('donate_done'),
+    donate_later: t('donate_later'),
+    donate_skip: t('donate_skip'),
+    donate_thanks: t('donate_thanks'),
+    donate_title: t('donate_title'),
+    export_title: t('export_title'),
+    filter_evening: t('filter_evening'),
+    filter_morning: t('filter_morning'),
+    filter_noon: t('filter_noon'),
+    header_sub: t('header_sub'),
+    header_title: t('header_title'),
+    hist_title: t('hist_title'),
+    lbl_dia: t('lbl_dia'),
+    lbl_med_daily: t('lbl_med_daily'),
+    lbl_pulse: t('lbl_pulse'),
+    lbl_sugar_toggle: t('lbl_sugar_toggle'),
+    lbl_sys: t('lbl_sys'),
+    lbl_weight_toggle: t('lbl_weight_toggle'),
+    light: t('light'),
+    med_cat_bp: t('med_cat_bp'),
+    med_cat_lbl: t('med_cat_lbl'),
+    med_cat_other: t('med_cat_other'),
+    med_cat_sugar: t('med_cat_sugar'),
+    med_cat_weight: t('med_cat_weight'),
+    med_dose_lbl: t('med_dose_lbl'),
+    med_dose_ph: t('med_dose_ph'),
+    med_duration_lbl: t('med_duration_lbl'),
+    med_duration_ph: t('med_duration_ph'),
+    med_name_lbl: t('med_name_lbl'),
+    med_name_ph: t('med_name_ph'),
+    med_note_lbl: t('med_note_lbl'),
+    med_note_ph: t('med_note_ph'),
+    med_time_lekveles: t('med_time_lekveles'),
+    med_when_lbl: t('med_when_lbl'),
+    my_meds_title: t('my_meds_title'),
+    note_placeholder: t('note_placeholder'),
+    pdf_avg_bp: t('pdf_avg_bp'),
+    pdf_avg_pulse: t('pdf_avg_pulse'),
+    pdf_avg_sugar: t('pdf_avg_sugar'),
+    pdf_avg_weight: t('pdf_avg_weight'),
+    pdf_btn: t('pdf_btn'),
+    pdf_col_adh: t('pdf_col_adh'),
+    pdf_col_date: t('pdf_col_date'),
+    pdf_col_dia: t('pdf_col_dia'),
+    pdf_col_dose: t('pdf_col_dose'),
+    pdf_col_medname: t('pdf_col_medname'),
+    pdf_col_meds_bp: t('pdf_col_meds_bp'),
+    pdf_col_meds_sg: t('pdf_col_meds_sg'),
+    pdf_col_meds_w: t('pdf_col_meds_w'),
+    pdf_col_note: t('pdf_col_note'),
+    pdf_col_pulse: t('pdf_col_pulse'),
+    pdf_col_sugar: t('pdf_col_sugar'),
+    pdf_col_sys: t('pdf_col_sys'),
+    pdf_col_times: t('pdf_col_times'),
+    pdf_col_weight: t('pdf_col_weight'),
+    pdf_count: t('pdf_count'),
+    pdf_days: t('pdf_days'),
+    pdf_main_title: t('pdf_main_title'),
+    pdf_meds: t('pdf_meds'),
+    pdf_no_meds: t('pdf_no_meds'),
+    pdf_prepared: t('pdf_prepared'),
+    pdf_sub: t('pdf_sub'),
+    pdf_sugar: t('pdf_sugar'),
+    pdf_summary: t('pdf_summary'),
+    pdf_title: t('pdf_title'),
+    pdf_weight: t('pdf_weight'),
+    save_btn: t('save_btn'),
+    stats_title: t('stats_title'),
+    time_delben: t('time_delben'),
+    time_este: t('time_este'),
+    time_reggel: t('time_reggel'),
+    time_title: t('time_title'),
+    toast_deleted: t('toast_deleted'),
+    toast_donated: t('toast_donated'),
+    toast_med_log: t('toast_med_log'),
+    toast_migrated: t('toast_migrated'),
+    toast_pdf: t('toast_pdf'),
+    warn_popup: t('warn_popup'),
+    pdf_bp_morning: t('pdf_bp_morning'),
+    pdf_bp_noon:    t('pdf_bp_noon'),
+    pdf_bp_evening: t('pdf_bp_evening'),
+  };
+
+  const ym = document.getElementById('histMonth')?.value || currentYM();
+  const data = getMeasurements(ym);
+  if (!data.length) { toast('⚠️ Nincs adat!'); return; }
+
+  const label = monthLabel(ym);
+  const byTime = {};
+  ['reggel','délben','este'].forEach(t => { byTime[t] = data.filter(m=>m.time===t).sort((a,b)=>a.date.localeCompare(b.date)); });
+
+  const allSys    = data.map(d=>d.sys).filter(Boolean);
+  const allDia    = data.map(d=>d.dia).filter(Boolean);
+  const allPulse  = data.map(d=>d.pulse).filter(Boolean);
+  const allWeight = data.map(d=>d.weight).filter(Boolean);
+  const allSugar  = data.map(d=>d.sugar).filter(Boolean);
+  const avg  = arr => arr.length ? (arr.reduce((a,b)=>a+b,0)/arr.length).toFixed(1) : '-';
+  const minV = arr => arr.length ? Math.min(...arr) : '-';
+  const maxV = arr => arr.length ? Math.max(...arr) : '-';
+
+  const wMin  = allWeight.length ? Math.max(0,Math.min(...allWeight)-3) : 0;
+  const wMax  = allWeight.length ? Math.max(...allWeight)+3 : 100;
+  const sgMin = allSugar.length  ? Math.max(0,Math.min(...allSugar)-1)  : 0;
+  const sgMax = allSugar.length  ? Math.max(...allSugar)+1  : 10;
+
+  const allDates = [...new Set(data.map(d=>d.date))].sort();
+  const allDateLabels = allDates.map(d=>d.slice(5));
+
+  // Gyógyszer bevétel státusz — kategória ÉS napszak szerint szűrve
+  function medStatusCell(date, chartCat, timeOfDay) {
+    const meds = S.medicines.filter(med => {
+      if (!med.times.length) return false;
+      if (chartCat && (med.category||'egyéb') !== chartCat) return false;
+      if (timeOfDay && !med.times.includes(timeOfDay)) return false;
+      return true;
+    });
+    if (!meds.length) return '-';
+    const parts = meds.map(med => {
+      const key = date + '_' + (timeOfDay || med.times[0]);
+      const status = (med.log||{})[key];
+      if (status === 'taken')
+        return '<span style="color:#166534;background:#dcfce7;padding:1px 6px;border-radius:4px;font-size:11px">✓ '+med.name+'</span>';
+      if (status === 'missed')
+        return '<span style="color:#991b1b;background:#fee2e2;padding:1px 6px;border-radius:4px;font-size:11px">✗ '+med.name+'</span>';
+      return '<span style="color:#92400e;background:#fef3c7;padding:1px 6px;border-radius:4px;font-size:11px">? '+med.name+'</span>';
+    });
+    return parts.join(' ');
+  }
+
+  function tableRows(arr, chartCat) {
+    if (!arr.length) return '<tr><td colspan="7" style="text-align:center;color:#999">Nincs adat</td></tr>';
+    return arr.map(m =>
+      '<tr><td>'+m.date+'</td><td>'+m.sys+'</td><td>'+m.dia+'</td><td>'+m.pulse+'</td><td>'+(m.weight||'-')+'</td><td>'+(m.sugar||'-')+'</td><td>'+medStatusCell(m.date, chartCat, m.time)+'</td></tr>'
+    ).join('');
+  }
+
+  const medsHtml = S.medicines.length ? S.medicines.map(med => {
+    const taken = Object.values(med.log||{}).filter(v=>v==='taken').length;
+    const total = Object.keys(med.log||{}).length;
+    const pct   = total ? Math.round(taken/total*100) : 0;
+    return '<tr><td>'+med.name+'</td><td>'+(med.dose||'-')+'</td><td>'+(med.times.join(', ')||'-')+'</td><td>'+pct+'%</td><td>'+(med.note||'-')+'</td></tr>';
+  }).join('') : '<tr><td colspan="5" style="color:#999">'+_pdf.pdf_no_meds+'</td></tr>';
+
+  // Serialize chart data as JSON strings (no backticks needed)
+  function cj(arr) { return JSON.stringify(arr); }
+  const chartData = {};
+  ['reggel','délben','este'].forEach(t => {
+    const arr = byTime[t];
+    chartData[t] = {
+      labels: cj(arr.map(m=>m.date.slice(5))),
+      sys:    cj(arr.map(m=>m.sys||null)),
+      dia:    cj(arr.map(m=>m.dia||null)),
+      pulse:  cj(arr.map(m=>m.pulse||null)),
+      weight: cj(arr.map(m=>m.weight||null)),
+      sugar:  cj(arr.map(m=>m.sugar||null))
+    };
+  });
+
+  // Weight/sugar series for combined charts
+  function seriesForField(field) {
+    const result = {};
+    ['reggel','délben','este'].forEach(t => {
+      result[t] = cj(allDates.map(date => {
+        const m = byTime[t].find(x=>x.date===date);
+        return (m && m[field]) ? m[field] : null;
+      }));
+    });
+    return result;
+  }
+  const wSeries  = seriesForField('weight');
+  const sgSeries = seriesForField('sugar');
+
+  // Build BP chart sections
+  const timeColors = { reggel:'#2a7a4b', délben:'#b07014', este:'#1e4fa3' };
+  const timeLabels2 = { reggel: _pdf.pdf_bp_morning, délben: _pdf.pdf_bp_noon, este: _pdf.pdf_bp_evening };
+
+  let bpSections = '';
+  let bpChartScripts = '';
+  ['reggel','délben','este'].forEach((t,ti) => {
+    const pb = ti > 0 ? ' class="pb"' : '';
+    bpSections += '<div'+pb+'>';
+    bpSections += '<h2 style="border-color:'+timeColors[t]+';color:'+timeColors[t]+'">'+timeLabels2[t]+'</h2>';
+    if (byTime[t].length) {
+      bpSections += '<div class="chart-box"><canvas id="bpChart_'+t+'" height="240"></canvas></div>';
+    }
+    bpSections += '<table><thead><tr><th>'+_pdf.pdf_col_date+'</th><th>'+_pdf.pdf_col_sys+'</th><th>'+_pdf.pdf_col_dia+'</th><th>'+_pdf.pdf_col_pulse+'</th><th>'+_pdf.pdf_col_weight+'</th><th>'+_pdf.pdf_col_sugar+'</th><th>'+_pdf.pdf_col_meds_bp+'</th></tr></thead>';
+    bpSections += '<tbody>'+tableRows(byTime[t], 'vérnyomás')+'</tbody></table></div>';
+
+    if (byTime[t].length) {
+      const cd = chartData[t];
+      const validSys = byTime[t].map(m=>m.sys).filter(Boolean);
+      const dynMin = 50;
+      const dynMax = validSys.length ? Math.max(...validSys) + 10 : 180;
+      bpChartScripts += '(function(){'
+        + 'var cd={labels:'+cd.labels+',sys:'+cd.sys+',dia:'+cd.dia+',pulse:'+cd.pulse+'};'
+        + 'var dynMin='+dynMin+',dynMax='+dynMax+';'
+        + 'new Chart(document.getElementById("bpChart_'+t+'"),{'
+        + 'type:"bar",'
+        + 'data:{labels:cd.labels,datasets:['
+        +   '{label:"Also",data:cd.dia.map(function(v){return v!==null?v-dynMin:null;}),backgroundColor:"#3b82f6",stack:"bp",borderRadius:4,barPercentage:0.55},'
+        +   '{label:"Felso",data:cd.sys.map(function(s,i){return s!==null&&cd.dia[i]!==null?s-cd.dia[i]:null;}),backgroundColor:"#ef4444",stack:"bp",borderRadius:4,barPercentage:0.55}'
+        + ']},'
+        + 'options:{'
+        +   'responsive:true,maintainAspectRatio:true,'
+        +   'plugins:{legend:{position:"top"},tooltip:{callbacks:{label:function(ctx){'
+        +     'if(ctx.dataset.label==="Felso"){var i=ctx.dataIndex;return["Felso: "+cd.sys[i]+" Hgmm","Also: "+cd.dia[i]+" Hgmm","Pulzus: "+cd.pulse[i]+" bpm"];}'
+        +     'return null;}}}},'
+        +   'scales:{'
+        +     'y:{min:0,stacked:true,ticks:{stepSize:10,callback:function(v){return v===0?dynMin:v+dynMin;}},title:{display:true,text:"Hgmm"}},'
+        +     'x:{ticks:{maxRotation:45,autoSkip:true}}'
+        +   '}'
+        + '},'
+        + 'plugins:[{'
+        +   'beforeDraw:function(chart){'
+        +     'var ctx=chart.ctx,ca=chart.chartArea,y=chart.scales.y;'
+        +     'ctx.save();'
+        +     'ctx.fillStyle="rgba(34,197,94,0.22)";'
+        +     'var s1=y.getPixelForValue(130-dynMin),s2=y.getPixelForValue(110-dynMin);'
+        +     'if(s2>s1)ctx.fillRect(ca.left,s1,ca.right-ca.left,s2-s1);'
+        +     'ctx.fillStyle="rgba(34,197,94,0.14)";'
+        +     'var d1=y.getPixelForValue(85-dynMin),d2=y.getPixelForValue(70-dynMin);'
+        +     'if(d2>d1)ctx.fillRect(ca.left,d1,ca.right-ca.left,d2-d1);'
+        +     'ctx.restore();'
+        +   '},'
+        +   'afterDraw:function(chart){'
+        +     'var ctx=chart.ctx,x=chart.scales.x,y=chart.scales.y;'
+        +     'var meta=chart.getDatasetMeta(0);'
+        +     'var barW=meta.data.length?meta.data[0].width:30;'
+        +     'var fontSize=Math.max(8,Math.min(13,Math.floor(barW*0.38)));'
+        +     'cd.dia.forEach(function(dia,idx){'
+        +       'var pulse=cd.pulse[idx];'
+        +       'if(!pulse||dia===null)return;'
+        +       'var xPos=x.getPixelForValue(idx);'
+        +       'var barTop=y.getPixelForValue(dia-dynMin);'
+        +       'var barBot=y.getPixelForValue(0);'
+        +       'var barH=barBot-barTop;'
+        +       'if(barH<fontSize*3)return;'
+        +       'var centerY=barBot-barH*0.2;'
+        +       'ctx.save();'
+        +       'ctx.textAlign="center";'
+        +       'ctx.font="bold "+fontSize+"px Arial";'
+        +       'ctx.fillStyle="#dbeafe";'
+        +       'ctx.textBaseline="bottom";'
+        +       'ctx.fillText(String(pulse),xPos,centerY-1);'
+        +       'ctx.font=(fontSize+1)+"px Arial";'
+        +       'ctx.fillStyle="#93c5fd";'
+        +       'ctx.textBaseline="top";'
+        +       'ctx.fillText("\u2665",xPos,centerY+1);'
+        +       'ctx.restore();'
+        +     '});'
+        +   '}'
+        + '}]'
+        + '});'
+        + '})();';
+    }
+  });
+
+  // Weight chart
+  let weightSection = '';
+  let weightScript = '';
+  if (allWeight.length) {
+    const wTableRows = tableRows(data.filter(m=>m.weight), 'súly');
+    weightSection = '<div class="pb"><h2 style="border-color:#2a7a4b;color:#2a7a4b">'+_pdf.pdf_weight+'</h2>'
+      + '<div class="chart-box"><canvas id="weightChart" height="220"></canvas></div>'
+      + '<table><thead><tr><th>'+_pdf.pdf_col_date+'</th><th>'+_pdf.pdf_col_sys+'</th><th>'+_pdf.pdf_col_dia+'</th><th>'+_pdf.pdf_col_pulse+'</th><th>'+_pdf.pdf_col_weight+'</th><th>'+_pdf.pdf_col_sugar+'</th><th>'+_pdf.pdf_col_meds_w+'</th></tr></thead>'
+      + '<tbody>'+wTableRows+'</tbody></table></div>';
+    weightScript = '(function(){'
+      + 'var dates='+cj(allDateLabels)+';'
+      + 'new Chart(document.getElementById("weightChart"),{'
+      + 'type:"line",data:{labels:dates,datasets:['
+      +   '{label:"Reggel",data:'+wSeries.reggel+',borderColor:"#2a7a4b",backgroundColor:"rgba(42,122,75,0.08)",tension:0.25,pointRadius:4,spanGaps:true},'
+      +   '{label:"Delben",data:'+wSeries['délben']+',borderColor:"#b07014",backgroundColor:"rgba(176,112,20,0.08)",tension:0.25,pointRadius:4,spanGaps:true},'
+      +   '{label:"Este",data:'+wSeries.este+',borderColor:"#1e4fa3",backgroundColor:"rgba(30,79,163,0.08)",tension:0.25,pointRadius:4,spanGaps:true}'
+      + ']},'
+      + 'options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{position:"top"}},'
+      + 'scales:{y:{min:'+wMin+',max:'+wMax+',title:{display:true,text:"Suly (kg)"},ticks:{stepSize:0.5}},x:{ticks:{maxRotation:45,autoSkip:true}}}}'
+      + '});'
+      + '})();';
+  }
+
+  // Sugar chart
+  let sugarSection = '';
+  let sugarScript = '';
+  if (allSugar.length) {
+    const sgTableRows = tableRows(data.filter(m=>m.sugar), 'cukor');
+    sugarSection = '<div class="pb"><h2 style="border-color:#6b3fa0;color:#6b3fa0">'+_pdf.pdf_sugar+'</h2>'
+      + '<div class="chart-box"><canvas id="sugarChart" height="220"></canvas></div>'
+      + '<table><thead><tr><th>'+_pdf.pdf_col_date+'</th><th>'+_pdf.pdf_col_sys+'</th><th>'+_pdf.pdf_col_dia+'</th><th>'+_pdf.pdf_col_pulse+'</th><th>'+_pdf.pdf_col_weight+'</th><th>'+_pdf.pdf_col_sugar+'</th><th>'+_pdf.pdf_col_meds_sg+'</th></tr></thead>'
+      + '<tbody>'+sgTableRows+'</tbody></table></div>';
+    sugarScript = '(function(){'
+      + 'var dates='+cj(allDateLabels)+';'
+      + 'new Chart(document.getElementById("sugarChart"),{'
+      + 'type:"line",data:{labels:dates,datasets:['
+      +   '{label:"Reggel",data:'+sgSeries.reggel+',borderColor:"#6b3fa0",backgroundColor:"rgba(107,63,160,0.08)",tension:0.25,pointRadius:4,spanGaps:true},'
+      +   '{label:"Delben",data:'+sgSeries['délben']+',borderColor:"#b07014",backgroundColor:"rgba(176,112,20,0.08)",tension:0.25,pointRadius:4,spanGaps:true},'
+      +   '{label:"Este",data:'+sgSeries.este+',borderColor:"#1e4fa3",backgroundColor:"rgba(30,79,163,0.08)",tension:0.25,pointRadius:4,spanGaps:true}'
+      + ']},'
+      + 'options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{position:"top"}},'
+      + 'scales:{y:{min:'+sgMin+',max:'+sgMax+',title:{display:true,text:"mmol/L"},ticks:{stepSize:0.5}},x:{ticks:{maxRotation:45,autoSkip:true}}},'
+      + 'plugins:[{beforeDraw:function(chart){'
+      +   'var ctx=chart.ctx,ca=chart.chartArea,y=chart.scales.y;ctx.save();'
+      +   'ctx.fillStyle="rgba(34,197,94,0.2)";'
+      +   'ctx.fillRect(ca.left,y.getPixelForValue(5.9),ca.right-ca.left,y.getPixelForValue(4.0)-y.getPixelForValue(5.9));'
+      +   'ctx.restore();}}]}'
+      + '});'
+      + '})();';
+  }
+
+  // Medicines section
+  let medsSection = '';
+  if (S.medicines.length) {
+    medsSection = '<div class="pb"><h2 style="border-color:#c8432a;color:#c8432a">'+_pdf.pdf_meds+'</h2>'
+      + '<table><thead><tr><th>'+_pdf.pdf_col_medname+'</th><th>'+_pdf.pdf_col_dose+'</th><th>'+_pdf.pdf_col_times+'</th><th>'+_pdf.pdf_col_adh+'</th><th>'+_pdf.pdf_col_note+'</th></tr></thead>'
+      + '<tbody>'+medsHtml+'</tbody></table></div>';
+  }
+
+  // Stats
+  const statsHtml = ''
+    + '<div class="stat"><div class="stat-val">'+avg(allSys)+'/'+avg(allDia)+'</div><div class="stat-lbl">'+_pdf.pdf_avg_bp+'</div><div class="stat-sub">'+minV(allSys)+'–'+maxV(allSys)+' Hgmm</div></div>'
+    + '<div class="stat"><div class="stat-val">'+avg(allPulse)+'</div><div class="stat-lbl">'+_pdf.pdf_avg_pulse+'</div><div class="stat-sub">'+minV(allPulse)+'–'+maxV(allPulse)+' bpm</div></div>'
+    + (allWeight.length ? '<div class="stat"><div class="stat-val">'+avg(allWeight)+'</div><div class="stat-lbl">'+_pdf.pdf_avg_weight+'</div><div class="stat-sub">'+minV(allWeight)+'–'+maxV(allWeight)+' kg</div></div>' : '')
+    + (allSugar.length  ? '<div class="stat"><div class="stat-val">'+avg(allSugar) +'</div><div class="stat-lbl">'+_pdf.pdf_avg_sugar+'</div><div class="stat-sub">'+minV(allSugar)+'–'+maxV(allSugar)+' mmol/L</div></div>' : '')
+    + '<div class="stat"><div class="stat-val">'+data.length+'</div><div class="stat-lbl">'+_pdf.pdf_count+'</div><div class="stat-sub">'+new Set(data.map(d=>d.date)).size+' '+_pdf.pdf_days+'</div></div>';
+
+  const pw = window.open('','_blank');
+  if (!pw) { toast(_pdf.warn_popup); return; }
+
+  const html = '<!DOCTYPE html><html lang="hu"><head><meta charset="UTF-8">'
+    + '<title>'+_pdf.pdf_main_title+' – '+label+'</title>'
+    + '<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"><\/script>'
+    + '<style>'
+    + '*{box-sizing:border-box;margin:0;padding:0;font-family:Arial,sans-serif}'
+    + 'body{background:#fff;padding:24px;color:#1a1a1a;font-size:13px}'
+    + 'h1{font-size:22px;color:#1e3a5f;text-align:center;margin-bottom:4px}'
+    + '.sub{text-align:center;color:#666;margin-bottom:24px;font-size:13px}'
+    + 'h2{font-size:15px;margin:28px 0 10px;padding:6px 12px;border-left:5px solid;border-radius:3px;background:#f8f8f8}'
+    + '.stat-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:24px}'
+    + '.stat{background:#f5f7fa;border-radius:8px;padding:12px;text-align:center}'
+    + '.stat-val{font-size:20px;font-weight:700;color:#1e3a5f}'
+    + '.stat-lbl{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.4px;margin-top:2px}'
+    + '.stat-sub{font-size:11px;color:#555;margin-top:2px}'
+    + 'table{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:12px}'
+    + 'th{background:#eef2ff;padding:7px 8px;text-align:left;border:1px solid #d0d5e8}'
+    + 'td{padding:6px 8px;border:1px solid #e2e8f0}'
+    + 'tr:nth-child(even) td{background:#fafbff}'
+    + '.chart-box{margin:16px 0 24px;text-align:center}'
+    + 'canvas{width:100%!important;max-height:300px;border:1px solid #e2e8f0;border-radius:8px}'
+    + '.pb{page-break-before:always}'
+    + 'footer{text-align:center;font-size:11px;color:#999;margin-top:32px;border-top:1px solid #eee;padding-top:12px}'
+    + '@page{margin:0mm}@media print{body{padding:12px}.pb{page-break-before:always}}'
+    + '</style></head><body>'
+    + '<h1>'+_pdf.pdf_main_title+'</h1>'
+    + '<div class="sub"><strong>'+label+'</strong> &nbsp;·&nbsp; '+_pdf.pdf_prepared+': '+new Date().toLocaleDateString()+'</div>'
+    + '<h2 style="border-color:#1e3a5f">'+_pdf.pdf_summary+'</h2>'
+    + '<div class="stat-grid">'+statsHtml+'</div>'
+    + bpSections
+    + weightSection
+    + sugarSection
+    + medsSection
+    + '<footer>Program: Claude AI + Váradi Elemér ❤️</footer>'
+    + '<script>'
+    + bpChartScripts
+    + weightScript
+    + sugarScript
+    + 'setTimeout(function(){window.print();},900);'
+    + '<\/script>'
+    + '</body></html>';
+
+  pw.document.write(html);
+  pw.document.close();
+  toast(_pdf.toast_pdf);
+}
+
+
+
+
+
+// ============================================================
+// EVENT LISTENERS
+// ============================================================
+function initEvents() {
+  // TABS
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+      tab.classList.add('active');
+      const panel = document.getElementById('tab-'+tab.dataset.tab);
+      if (panel) panel.classList.add('active');
+      if (tab.dataset.tab === 'grafikon') renderChart();
+      if (tab.dataset.tab === 'nyomtatas') renderHistory();
+      if (tab.dataset.tab === 'gyogyszer') renderMedicines();
+    });
+  });
+
+  // TIME PILLS
+  document.querySelectorAll('.time-pill').forEach(p => {
+    p.addEventListener('click', () => setTime(p.dataset.t));
+  });
+
+  // TOGGLES
+  ['W','S'].forEach(k => {
+    document.getElementById('tog'+k).addEventListener('change', e => {
+      const on = e.target.checked;
+      if (k==='W') S.weightOn=on;
+      if (k==='S') S.sugarOn=on;
+      document.getElementById('col'+k).classList.toggle('open',on);
+      save();
+      updateChartTypeButtons();
+    });
+  });
+
+
+  // GYÓGYSZERES KEZELÉS kapcsoló → panel megjelenítése
+  document.getElementById('togMedDaily').addEventListener('change', e => {
+    document.getElementById('colMedDaily').classList.toggle('open', e.target.checked);
+    if (e.target.checked) renderMedDailyPanel();
+  });
+
+  // GRAFIKON SZŰRŐK – pötty teli/üres + localStorage
+  function loadFilterState() {
+    ['Morning','Noon','Evening'].forEach(n => {
+      const saved = localStorage.getItem('egmon_f'+n);
+      const cb = document.getElementById('f'+n);
+      const lbl = document.getElementById('filterLbl'+n);
+      const dot = lbl ? lbl.querySelector('.dot') : null;
+      if (saved === '0') {
+        cb.checked = false;
+        lbl && lbl.classList.remove('active-filter');
+        dot && dot.classList.remove('filled');
+      }
+    });
+  }
+  loadFilterState();
+  ['Morning','Noon','Evening'].forEach(n => {
+    const lbl = document.getElementById('filterLbl'+n);
+    const cb  = document.getElementById('f'+n);
+    if (!lbl) return;
+    lbl.addEventListener('click', () => {
+      cb.checked = !cb.checked;
+      lbl.classList.toggle('active-filter', cb.checked);
+      const dot = lbl.querySelector('.dot');
+      dot && dot.classList.toggle('filled', cb.checked);
+      localStorage.setItem('egmon_f'+n, cb.checked ? '1' : '0');
+      renderChart();
+    });
+  });
+
+  // SAVE
+  document.getElementById('saveBtn').addEventListener('click', saveMeasurement);
+
+  // CHART TYPE
+  document.querySelectorAll('.chart-type-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (btn.disabled) return;
+      document.querySelectorAll('.chart-type-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      S.chartType = btn.dataset.ct;
+      renderChart();
+    });
+  });
+
+  // CHART FILTERS
+  ['fMorning','fNoon','fEvening'].forEach(id => {
+    document.getElementById(id).addEventListener('change', renderChart);
+  });
+
+  // CHART MONTH
+  document.getElementById('chartMonth').addEventListener('change', renderChart);
+  document.getElementById('refreshChart').addEventListener('click', renderChart);
+
+  // HISTORY MONTH
+  document.getElementById('histMonth').addEventListener('change', renderHistory);
+  document.getElementById('refreshHist').addEventListener('click', renderHistory);
+
+  // HISTORY DELETE
+  document.getElementById('histList').addEventListener('click', e => {
+    const btn = e.target.closest('[data-idx]');
+    if (!btn) return;
+    const ym = btn.dataset.ym;
+    const idx = +btn.dataset.idx;
+    if (!isNaN(idx) && S.measurements[ym]) {
+      S.measurements[ym].splice(idx,1);
+      if (!S.measurements[ym].length) delete S.measurements[ym];
+      save();
+      renderHistory();
+      renderStats();
+      renderMonthSelectors();
+      toast(t('toast_deleted'));
+    }
+  });
+
+  // EXPORT – szétválasztva
+  document.getElementById('exportCsvBtn').addEventListener('click', exportCsv);
+  document.getElementById('exportPdfBtn').addEventListener('click', exportPdf);
+  document.getElementById('clearBtn').addEventListener('click', () => {
+    if (confirm('Biztosan törlöd az összes mérési adatot?')) {
+      S.measurements = {};
+      save();
+      renderHistory();
+      renderStats();
+      renderMonthSelectors();
+      toast('🗑️ Adatok törölve');
+    }
+  });
+
+  // MEDICINE MODAL
+  document.getElementById('addMedBtn').addEventListener('click', () => openMedModal(null));
+  document.getElementById('medCancelBtn').addEventListener('click', () => document.getElementById('medModal').classList.remove('open'));
+
+  // NAPI GYÓGYSZER PANEL – dose quick btn + save log btn
+  document.getElementById('tab-merés').addEventListener('click', e => {
+    // Státusz gomb
+    const qBtn = e.target.closest('.dose-quick-btn');
+    if (qBtn) {
+      const medId = qBtn.dataset.med;
+      const timeKey = qBtn.dataset.time;
+      const curStatus = qBtn.dataset.status;
+      const med = S.medicines.find(m => m.id === medId);
+      if (!med) return;
+      if (!med.log) med.log = {};
+      const key = today() + '_' + timeKey;
+      const cycle = ['pending','taken','missed'];
+      const next = cycle[(cycle.indexOf(curStatus)+1) % cycle.length];
+      if (next === 'pending') delete med.log[key]; else med.log[key] = next;
+      save();
+      renderMedDailyPanel();
+      updateMedDailyBadge();
+      return;
+    }
+    // Mentés gomb
+    if (e.target.id === 'saveMedLogBtn' || e.target.closest('#saveMedLogBtn')) {
+      save();
+      toast(t('toast_med_log'));
+    }
+  });
+  document.getElementById('medSaveBtn').addEventListener('click', saveMed);
+  document.getElementById('medModal').addEventListener('click', e => {
+    if (e.target === document.getElementById('medModal')) document.getElementById('medModal').classList.remove('open');
+  });
+
+  // MED TIME PILLS IN MODAL
+  document.getElementById('medTimesRow').addEventListener('click', e => {
+    const pill = e.target.closest('[data-mt]');
+    if (!pill) return;
+    const mt = pill.dataset.mt;
+    if (S.medSelectedTimes.has(mt)) S.medSelectedTimes.delete(mt); else S.medSelectedTimes.add(mt);
+    pill.classList.toggle('active', S.medSelectedTimes.has(mt));
+  });
+
+  // MED CATEGORY PILLS IN MODAL
+  document.getElementById('medCatRow').addEventListener('click', e => {
+    const pill = e.target.closest('[data-cat]');
+    if (!pill) return;
+    S.medSelectedCat = S.medSelectedCat === pill.dataset.cat ? '' : pill.dataset.cat;
+    document.querySelectorAll('[data-cat]').forEach(p => p.classList.toggle('active', p.dataset.cat === S.medSelectedCat));
+  });
+
+  // MED LIST CLICKS (dose + edit + delete)
+  document.getElementById('medList').addEventListener('click', e => {
+    const editBtn = e.target.closest('[data-edit]');
+    if (editBtn) { openMedModal(editBtn.dataset.edit); return; }
+    const delBtn = e.target.closest('[data-delmed]');
+    if (delBtn) {
+      if (confirm('Törlöd ezt a gyógyszert?')) {
+        S.medicines = S.medicines.filter(m=>m.id!==delBtn.dataset.delmed);
+        save();
+        renderMedicines();
+        toast('🗑️ Gyógyszer törölve');
+      }
+    }
+  });
+
+  // RESIZE
+  window.addEventListener('resize', () => {
+    if (document.getElementById('tab-grafikon').classList.contains('active')) renderChart();
+  });
+
+  // TÉMA KAPCSOLÓ
+  document.getElementById('themeToggle').addEventListener('click', () => {
+    applyTheme(!document.body.classList.contains('dark'));
+  });
+
+  // NYELVVÁLASZTÓ
+  const langSel = document.getElementById('langSelect');
+  if (langSel) {
+    langSel.value = LANG;
+    langSel.addEventListener('change', () => {
+      LANG = langSel.value;
+      localStorage.setItem('egmon_lang', LANG);
+      applyLang();
+    });
+  }
+}
+
+function updateChartTypeButtons() {
+  const hasWeight = S.measurements && Object.values(S.measurements).some(arr=>arr.some(m=>m.weight));
+  const hasSugar = S.measurements && Object.values(S.measurements).some(arr=>arr.some(m=>m.sugar));
+  document.getElementById('ctWeight').disabled = !hasWeight;
+  document.getElementById('ctSugar').disabled = !hasSugar;
+}
+
+
+
+// ============================================================
+// FORDÍTÁSOK (i18n)
+// ============================================================
+const LANGS = {
+  hu: {
+    pdf_summary: 'Havi összesítő',
+    pdf_bp_morning: '❤️ Vérnyomás – REGGEL',
+    pdf_bp_noon: '❤️ Vérnyomás – DÉLBEN',
+    pdf_bp_evening: '❤️ Vérnyomás – ESTE',
+    pdf_weight: '⚖️ Súly – összesített',
+    pdf_sugar: '🩸 Vércukor – összesített',
+    pdf_meds: '💊 Gyógyszerek',
+    pdf_col_date: 'Dátum',
+    pdf_col_sys: 'Felső',
+    pdf_col_dia: 'Alsó',
+    pdf_col_pulse: 'Pulzus',
+    pdf_col_weight: 'Súly (kg)',
+    pdf_col_sugar: 'Cukor (mmol/L)',
+    pdf_col_meds_bp: 'Gyógyszerek (vérnyomás)',
+    pdf_col_meds_w: 'Gyógyszerek (súly)',
+    pdf_col_meds_sg: 'Gyógyszerek (cukor)',
+    pdf_col_medname: 'Gyógyszer',
+    pdf_col_dose: 'Dózis',
+    pdf_col_times: 'Időpontok',
+    pdf_col_adh: 'Rendszeresség',
+    pdf_col_note: 'Megjegyzés',
+    pdf_no_meds: 'Nincs rögzített gyógyszer',
+    pdf_prepared: 'Készült',
+    pdf_avg_bp: 'Átlag vérnyomás',
+    pdf_avg_pulse: 'Átlag pulzus',
+    pdf_avg_weight: 'Átlag súly',
+    pdf_avg_sugar: 'Átlag cukor',
+    pdf_count: 'Mérések száma',
+    pdf_days: 'napon',
+    header_title: 'Egészség<span style="color:var(--accent)">Monitor</span>', pdf_main_title: 'Egészségügyi Jelentés', header_sub: 'Vérnyomás · Súly · Cukor · Gyógyszerek',
+    tab_meres: '📊 Mérés', tab_grafikon: '📈 Grafikon', tab_gyogyszer: '💊 Gyógyszerek', tab_nyomtatas: '🖨️ Nyomtatás',
+    dark: '🌙 Sötét', light: '☀️ Világos',
+    time_title: 'Időpont', time_reggel: '🌅 Reggel', time_delben: '☀️ Délben', time_este: '🌙 Este',
+    bp_title: 'Vérnyomás & Pulzus', lbl_sys: 'Felső (sys)', lbl_dia: 'Alsó (dia)', lbl_pulse: 'Pulzus',
+    lbl_weight_toggle: '⚖️ Súly rögzítése', lbl_sugar_toggle: '🩸 Vércukor rögzítése', lbl_note_toggle: '📝 Megjegyzés', lbl_med_daily: '💊 Gyógyszeres kezelés',
+    note_placeholder: 'Pl.: kávé után mérve, stresszes nap...',
+    save_btn: '💾 Mérés mentése',
+    stats_title: 'Havi statisztikák', stats_empty: 'Még nincs adat',
+    chart_bp: '❤️ Vérnyomás', chart_weight: '⚖️ Súly', chart_sugar: '🩸 Cukor',
+    filter_morning: 'Reggel', filter_noon: 'Délben', filter_evening: 'Este',
+    today_meds_title: 'Mai gyógyszerek', today_meds_empty: 'Nincs rögzített gyógyszer',
+    my_meds_title: 'Gyógyszereim', my_meds_empty: 'Még nincs rögzített gyógyszer',
+    add_med_btn: '+ Új gyógyszer hozzáadása',
+    hist_title: 'Előzmények megtekintése', hist_empty: 'Nincs adat',
+    clear_btn: '🗑️ Adatok törlése',
+    export_title: 'Exportálás / Nyomtatás',
+    csv_title: 'CSV export', csv_sub: 'Táblázat, Excel-be importálható', csv_btn: '⬇️ CSV letöltése',
+    pdf_title: 'PDF jelentés', pdf_sub: 'Grafikonok + táblázatok nyomtatáshoz', pdf_btn: '🖨️ PDF megnyitása',
+    med_modal_new: 'Új gyógyszer', med_modal_edit: 'Gyógyszer szerkesztése',
+    med_name_lbl: 'Gyógyszer neve *', med_name_ph: 'pl. Lisinopril',
+    med_cat_lbl: 'Betegség / kategória',
+    med_cat_bp: '❤️ Vérnyomás', med_cat_sugar: '🩸 Cukor', med_cat_weight: '⚖️ Súly', med_cat_other: '💊 Egyéb',
+    med_dose_lbl: 'Dózis', med_dose_ph: 'pl. 10mg',
+    med_duration_lbl: 'Szedés időtartama', med_duration_ph: 'pl. Folyamatos',
+    med_note_lbl: 'Megjegyzés', med_note_ph: 'pl. étkezés előtt',
+    med_when_lbl: 'Mikor kell bevenni?',
+    med_time_lekveles: '🌛 Lefekvés',
+    btn_cancel: 'Mégse', btn_save: 'Mentés',
+    dose_taken: '✓', dose_missed: '✗', dose_pending: '○',
+    status_taken: '✓ Bevette', status_pending: '⏳ Függőben', status_missed: '✗ Kihagyta',
+    adherence: '% rendszeres',
+    stat_avg_bp: 'Átlag vérnyomás', stat_avg_pulse: 'Átlag pulzus', stat_avg_weight: 'Átlag súly', stat_avg_sugar: 'Átlag cukor', stat_count: 'Mérések száma', stat_days: 'napon',
+    donate_title: 'Köszönjük, hogy használja!',
+    donate_thanks: 'Hálásak vagyunk minden felhasználónak, aki nap mint nap megbízza egészségének nyomon követését az EgészségMonitornak.',
+    donate_body: 'Az alkalmazás teljesen ingyenes. Ha hasznosnak találja, kérjük támogassa egy jelképes összeggel — egy kávé árával',
+    donate_beneficiary: 'Kedvezményezett', donate_account: 'OTP bankszámlaszám',
+    donate_done: '✓ Köszönöm, már átutaltam!', donate_later: '⏰ Emlékeztess 30 nap múlva', donate_skip: 'Kihagyom',
+    toast_saved: '✅ Mérés elmentve', toast_deleted: '🗑️ Törölve', toast_csv: '✅ CSV letöltve!', toast_pdf: '✅ PDF nyomtatási ablak megnyílt', toast_migrated: '📦 Régi adatok átmigrálva!', toast_no_data: '⚠️ Nincs adat!', toast_donated: '🙏 Köszönjük a támogatást!', med_log_save: '💊 Gyógyszer bevétel mentése', med_panel_empty: '💊 Nincs rögzített gyógyszer. A Gyógyszerek fülön vehet fel újat.', toast_med_log: '💊 Gyógyszer bevétel elmentve!',
+    warn_bp: '⚠️ Vérnyomás és pulzus megadása kötelező!', warn_med_name: '⚠️ A gyógyszer neve kötelező!', warn_popup: '⚠️ Az előugró ablakot a böngésző blokkolta. Engedélyezd!',
+  },
+  en: {
+    pdf_summary: 'Monthly Summary',
+    pdf_bp_morning: '❤️ Blood Pressure – MORNING',
+    pdf_bp_noon: '❤️ Blood Pressure – NOON',
+    pdf_bp_evening: '❤️ Blood Pressure – EVENING',
+    pdf_weight: '⚖️ Weight – combined',
+    pdf_sugar: '🩸 Blood Sugar – combined',
+    pdf_meds: '💊 Medications',
+    pdf_col_date: 'Date',
+    pdf_col_sys: 'Systolic',
+    pdf_col_dia: 'Diastolic',
+    pdf_col_pulse: 'Pulse',
+    pdf_col_weight: 'Weight (kg)',
+    pdf_col_sugar: 'Sugar (mmol/L)',
+    pdf_col_meds_bp: 'Medications (BP)',
+    pdf_col_meds_w: 'Medications (weight)',
+    pdf_col_meds_sg: 'Medications (sugar)',
+    pdf_col_medname: 'Medication',
+    pdf_col_dose: 'Dose',
+    pdf_col_times: 'Times',
+    pdf_col_adh: 'Adherence',
+    pdf_col_note: 'Note',
+    pdf_no_meds: 'No medications recorded',
+    pdf_prepared: 'Prepared',
+    pdf_avg_bp: 'Avg Blood Pressure',
+    pdf_avg_pulse: 'Avg Pulse',
+    pdf_avg_weight: 'Avg Weight',
+    pdf_avg_sugar: 'Avg Sugar',
+    pdf_count: 'Measurements',
+    pdf_days: 'days',
+    header_title: 'Health<span style="color:var(--accent)">Monitor</span>', pdf_main_title: 'Health Report', header_sub: 'Blood Pressure · Weight · Sugar · Medications',
+    tab_meres: '📊 Measure', tab_grafikon: '📈 Chart', tab_gyogyszer: '💊 Medications', tab_nyomtatas: '🖨️ Print',
+    dark: '🌙 Dark', light: '☀️ Light',
+    time_title: 'Time of Day', time_reggel: '🌅 Morning', time_delben: '☀️ Noon', time_este: '🌙 Evening',
+    bp_title: 'Blood Pressure & Pulse', lbl_sys: 'Systolic', lbl_dia: 'Diastolic', lbl_pulse: 'Pulse',
+    lbl_weight_toggle: '⚖️ Record Weight', lbl_sugar_toggle: '🩸 Record Blood Sugar', lbl_note_toggle: '📝 Note', lbl_med_daily: '💊 Medication',
+    save_btn: '💾 Save Measurement',
+    stats_title: 'Monthly Statistics', stats_empty: 'No data yet',
+    chart_bp: '❤️ Blood Pressure', chart_weight: '⚖️ Weight', chart_sugar: '🩸 Sugar',
+    filter_morning: 'Morning', filter_noon: 'Noon', filter_evening: 'Evening',
+    today_meds_title: "Today's Medications", today_meds_empty: 'No medications recorded',
+    my_meds_title: 'My Medications', my_meds_empty: 'No medications yet',
+    add_med_btn: '+ Add New Medication',
+    hist_title: 'History', hist_empty: 'No data',
+    clear_btn: '🗑️ Delete All Data',
+    export_title: 'Export / Print',
+    csv_title: 'CSV Export', csv_sub: 'Table, importable to Excel', csv_btn: '⬇️ Download CSV',
+    pdf_title: 'PDF Report', pdf_sub: 'Charts + tables for printing', pdf_btn: '🖨️ Open PDF',
+    med_modal_new: 'New Medication', med_modal_edit: 'Edit Medication',
+    med_name_lbl: 'Medication name *', med_name_ph: 'e.g. Lisinopril',
+    med_cat_lbl: 'Condition / Category',
+    med_cat_bp: '❤️ Blood Pressure', med_cat_sugar: '🩸 Sugar', med_cat_weight: '⚖️ Weight', med_cat_other: '💊 Other',
+    med_dose_lbl: 'Dose', med_dose_ph: 'e.g. 10mg',
+    med_duration_lbl: 'Duration', med_duration_ph: 'e.g. Ongoing',
+    med_note_lbl: 'Note', med_note_ph: 'e.g. before meal',
+    med_when_lbl: 'When to take?',
+    med_time_lekveles: '🌛 Bedtime',
+    btn_cancel: 'Cancel', btn_save: 'Save',
+    dose_taken: '✓', dose_missed: '✗', dose_pending: '○',
+    status_taken: '✓ Taken', status_pending: '⏳ Pending', status_missed: '✗ Missed',
+    adherence: '% adherence',
+    stat_avg_bp: 'Avg Blood Pressure', stat_avg_pulse: 'Avg Pulse', stat_avg_weight: 'Avg Weight', stat_avg_sugar: 'Avg Sugar', stat_count: 'Measurements', stat_days: 'days',
+    donate_title: 'Thank you for using HealthMonitor!',
+    donate_thanks: 'We are grateful to every user who trusts HealthMonitor to track their health day by day.',
+    donate_body: 'This app is completely free. If you find it useful, please support us with a symbolic amount — the price of a coffee',
+    donate_beneficiary: 'Beneficiary', donate_account: 'OTP Bank Account',
+    donate_done: '✓ Thank you, I transferred it!', donate_later: '⏰ Remind me in 30 days', donate_skip: 'Skip',
+    toast_saved: '✅ Measurement saved', toast_deleted: '🗑️ Deleted', toast_csv: '✅ CSV downloaded!', toast_pdf: '✅ PDF print window opened', toast_migrated: '📦 Old data migrated!', toast_no_data: '⚠️ No data!', toast_donated: '🙏 Thank you for your support!', med_log_save: '💊 Save medication log', med_panel_empty: '💊 No medications recorded. Add one in the Medications tab.', toast_med_log: '💊 Medication log saved!',
+    warn_bp: '⚠️ Blood pressure and pulse are required!', warn_med_name: '⚠️ Medication name is required!', warn_popup: '⚠️ Popup blocked by browser. Please allow popups!',
+  },
+  de: {
+    pdf_summary: 'Monatszusammenfassung',
+    pdf_bp_morning: '❤️ Blutdruck – MORGENS',
+    pdf_bp_noon: '❤️ Blutdruck – MITTAGS',
+    pdf_bp_evening: '❤️ Blutdruck – ABENDS',
+    pdf_weight: '⚖️ Gewicht – gesamt',
+    pdf_sugar: '🩸 Blutzucker – gesamt',
+    pdf_meds: '💊 Medika',
+    pdf_col_date: 'Datum',
+    pdf_col_sys: 'Systolisch',
+    pdf_col_dia: 'Diastolisch',
+    pdf_col_pulse: 'Puls',
+    pdf_col_weight: 'Gewicht (kg)',
+    pdf_col_sugar: 'Zucker (mmol/L)',
+    pdf_col_meds_bp: 'Medika (Blutdruck)',
+    pdf_col_meds_w: 'Medika (Gewicht)',
+    pdf_col_meds_sg: 'Medika (Zucker)',
+    pdf_col_medname: 'Medikament',
+    pdf_col_dose: 'Dosis',
+    pdf_col_times: 'Zeiten',
+    pdf_col_adh: 'Einnahmetreue',
+    pdf_col_note: 'Notiz',
+    pdf_no_meds: 'Keine Medikamente erfasst',
+    pdf_prepared: 'Erstellt',
+    pdf_avg_bp: 'Ø Blutdruck',
+    pdf_avg_pulse: 'Ø Puls',
+    pdf_avg_weight: 'Ø Gewicht',
+    pdf_avg_sugar: 'Ø Zucker',
+    pdf_count: 'Messungen',
+    pdf_days: 'Tage',
+    header_title: 'Gesundheits<span style="color:var(--accent)">Monitor</span>', pdf_main_title: 'Gesundheitsbericht', header_sub: 'Blutdruck · Gewicht · Zucker · Medikamente',
+    tab_meres: '📊 Messung', tab_grafikon: '📈 Diagramm', tab_gyogyszer: '💊 Medika', tab_nyomtatas: '🖨️ Drucken',
+    dark: '🌙 Dunkel', light: '☀️ Hell',
+    time_title: 'Tageszeit', time_reggel: '🌅 Morgens', time_delben: '☀️ Mittags', time_este: '🌙 Abends',
+    bp_title: 'Blutdruck & Puls', lbl_sys: 'Systolisch', lbl_dia: 'Diastolisch', lbl_pulse: 'Puls',
+    lbl_weight_toggle: '⚖️ Gewicht erfassen', lbl_sugar_toggle: '🩸 Blutzucker erfassen', lbl_note_toggle: '📝 Notiz', lbl_med_daily: '💊 Medika',
+    note_placeholder: 'z.B. nach Kaffee gemessen...',
+    save_btn: '💾 Messung speichern',
+    stats_title: 'Monatsstatistik', stats_empty: 'Noch keine Daten',
+    chart_bp: '❤️ Blutdruck', chart_weight: '⚖️ Gewicht', chart_sugar: '🩸 Zucker',
+    filter_morning: 'Morgens', filter_noon: 'Mittags', filter_evening: 'Abends',
+    today_meds_title: 'Heutige Medikamente', today_meds_empty: 'Keine Medikamente eingetragen',
+    my_meds_title: 'Meine Medikamente', my_meds_empty: 'Noch keine Medikamente',
+    add_med_btn: '+ Neues Medikament hinzufügen',
+    hist_title: 'Verlauf', hist_empty: 'Keine Daten',
+    clear_btn: '🗑️ Alle Daten löschen',
+    export_title: 'Export / Drucken',
+    csv_title: 'CSV-Export', csv_sub: 'Tabelle, in Excel importierbar', csv_btn: '⬇️ CSV herunterladen',
+    pdf_title: 'PDF-Bericht', pdf_sub: 'Diagramme + Tabellen zum Drucken', pdf_btn: '🖨️ PDF öffnen',
+    med_modal_new: 'Neues Medikament', med_modal_edit: 'Medikament bearbeiten',
+    med_name_lbl: 'Medikamentenname *', med_name_ph: 'z.B. Lisinopril',
+    med_cat_lbl: 'Erkrankung / Kategorie',
+    med_cat_bp: '❤️ Blutdruck', med_cat_sugar: '🩸 Zucker', med_cat_weight: '⚖️ Gewicht', med_cat_other: '💊 Sonstige',
+    med_dose_lbl: 'Dosis', med_dose_ph: 'z.B. 10mg',
+    med_duration_lbl: 'Einnahmedauer', med_duration_ph: 'z.B. Dauerhaft',
+    med_note_lbl: 'Notiz', med_note_ph: 'z.B. vor dem Essen',
+    med_when_lbl: 'Wann einnehmen?',
+    med_time_lekveles: '🌛 Schlafenszeit',
+    btn_cancel: 'Abbrechen', btn_save: 'Speichern',
+    dose_taken: '✓', dose_missed: '✗', dose_pending: '○',
+    status_taken: '✓ Genommen', status_pending: '⏳ Ausstehend', status_missed: '✗ Vergessen',
+    adherence: '% Einnahmetreue',
+    stat_avg_bp: 'Ø Blutdruck', stat_avg_pulse: 'Ø Puls', stat_avg_weight: 'Ø Gewicht', stat_avg_sugar: 'Ø Zucker', stat_count: 'Messungen', stat_days: 'Tage',
+    donate_title: 'Danke, dass Sie HealthMonitor nutzen!',
+    donate_thanks: 'Wir sind dankbar für jeden Nutzer, der HealthMonitor täglich zur Gesundheitsüberwachung vertraut.',
+    donate_body: 'Diese App ist völlig kostenlos. Wenn Sie sie nützlich finden, unterstützen Sie uns bitte mit einem symbolischen Betrag — dem Preis eines Kaffees',
+    donate_beneficiary: 'Empfänger', donate_account: 'OTP Kontonummer',
+    donate_done: '✓ Danke, ich habe überwiesen!', donate_later: '⏰ Erinnere mich in 30 Tagen', donate_skip: 'Überspringen',
+    toast_saved: '✅ Messung gespeichert', toast_deleted: '🗑️ Gelöscht', toast_csv: '✅ CSV heruntergeladen!', toast_pdf: '✅ PDF-Druckfenster geöffnet', toast_migrated: '📦 Alte Daten migriert!', toast_no_data: '⚠️ Keine Daten!', toast_donated: '🙏 Danke für Ihre Unterstützung!', med_log_save: '💊 Medikamenteneinnahme speichern', med_panel_empty: '💊 Keine Medikamente. Bitte im Medikamente-Tab hinzufügen.', toast_med_log: '💊 Einnahme gespeichert!',
+    warn_bp: '⚠️ Blutdruck und Puls sind erforderlich!', warn_med_name: '⚠️ Medikamentenname ist erforderlich!', warn_popup: '⚠️ Popup vom Browser blockiert. Bitte erlauben!',
+  },
+  fr: {
+    pdf_summary: 'Résumé mensuel',
+    pdf_bp_morning: '❤️ Tension artérielle – MATIN',
+    pdf_bp_noon: '❤️ Tension artérielle – MIDI',
+    pdf_bp_evening: '❤️ Tension artérielle – SOIR',
+    pdf_weight: '⚖️ Poids – combiné',
+    pdf_sugar: '🩸 Glycémie – combinée',
+    pdf_meds: '💊 Médicaments',
+    pdf_col_date: 'Date',
+    pdf_col_sys: 'Systolique',
+    pdf_col_dia: 'Diastolique',
+    pdf_col_pulse: 'Pouls',
+    pdf_col_weight: 'Poids (kg)',
+    pdf_col_sugar: 'Glycémie (mmol/L)',
+    pdf_col_meds_bp: 'Médicaments (tension)',
+    pdf_col_meds_w: 'Médicaments (poids)',
+    pdf_col_meds_sg: 'Médicaments (glycémie)',
+    pdf_col_medname: 'Médicament',
+    pdf_col_dose: 'Dose',
+    pdf_col_times: 'Horaires',
+    pdf_col_adh: 'Observance',
+    pdf_col_note: 'Note',
+    pdf_no_meds: 'Aucun médicament enregistré',
+    pdf_prepared: 'Préparé le',
+    pdf_avg_bp: 'Tension moy.',
+    pdf_avg_pulse: 'Pouls moy.',
+    pdf_avg_weight: 'Poids moy.',
+    pdf_avg_sugar: 'Glycémie moy.',
+    pdf_count: 'Mesures',
+    pdf_days: 'jours',
+    header_title: 'Santé<span style="color:var(--accent)">Monitor</span>', pdf_main_title: 'Rapport de santé', header_sub: 'Tension artérielle · Poids · Glycémie · Médicaments',
+    tab_meres: '📊 Mesure', tab_grafikon: '📈 Graphique', tab_gyogyszer: '💊 Médicaments', tab_nyomtatas: '🖨️ Imprimer',
+    dark: '🌙 Sombre', light: '☀️ Clair',
+    time_title: 'Moment de la journée', time_reggel: '🌅 Matin', time_delben: '☀️ Midi', time_este: '🌙 Soir',
+    bp_title: 'Tension artérielle & Pouls', lbl_sys: 'Systolique', lbl_dia: 'Diastolique', lbl_pulse: 'Pouls',
+    lbl_weight_toggle: '⚖️ Enregistrer le poids', lbl_sugar_toggle: '🩸 Enregistrer la glycémie', lbl_note_toggle: '📝 Note', lbl_med_daily: '💊 Médicaments',
+    note_placeholder: 'ex. mesuré après café...',
+    save_btn: '💾 Enregistrer la mesure',
+    stats_title: 'Statistiques mensuelles', stats_empty: 'Pas encore de données',
+    chart_bp: '❤️ Tension', chart_weight: '⚖️ Poids', chart_sugar: '🩸 Glycémie',
+    filter_morning: 'Matin', filter_noon: 'Midi', filter_evening: 'Soir',
+    today_meds_title: "Médicaments d'aujourd'hui", today_meds_empty: 'Aucun médicament enregistré',
+    my_meds_title: 'Mes médicaments', my_meds_empty: 'Aucun médicament encore',
+    add_med_btn: '+ Ajouter un médicament',
+    hist_title: 'Historique', hist_empty: 'Aucune donnée',
+    clear_btn: '🗑️ Supprimer toutes les données',
+    export_title: 'Export / Impression',
+    csv_title: 'Export CSV', csv_sub: 'Tableau, importable dans Excel', csv_btn: '⬇️ Télécharger CSV',
+    pdf_title: 'Rapport PDF', pdf_sub: 'Graphiques + tableaux à imprimer', pdf_btn: '🖨️ Ouvrir PDF',
+    med_modal_new: 'Nouveau médicament', med_modal_edit: 'Modifier le médicament',
+    med_name_lbl: 'Nom du médicament *', med_name_ph: 'ex. Lisinopril',
+    med_cat_lbl: 'Maladie / Catégorie',
+    med_cat_bp: '❤️ Tension', med_cat_sugar: '🩸 Glycémie', med_cat_weight: '⚖️ Poids', med_cat_other: '💊 Autre',
+    med_dose_lbl: 'Dose', med_dose_ph: 'ex. 10mg',
+    med_duration_lbl: 'Durée du traitement', med_duration_ph: 'ex. En continu',
+    med_note_lbl: 'Note', med_note_ph: 'ex. avant le repas',
+    med_when_lbl: 'Quand le prendre?',
+    med_time_lekveles: '🌛 Au coucher',
+    btn_cancel: 'Annuler', btn_save: 'Enregistrer',
+    dose_taken: '✓', dose_missed: '✗', dose_pending: '○',
+    status_taken: '✓ Pris', status_pending: '⏳ En attente', status_missed: '✗ Manqué',
+    adherence: '% observance',
+    stat_avg_bp: 'Tension moy.', stat_avg_pulse: 'Pouls moy.', stat_avg_weight: 'Poids moy.', stat_avg_sugar: 'Glycémie moy.', stat_count: 'Mesures', stat_days: 'jours',
+    donate_title: 'Merci d\'utiliser HealthMonitor!',
+    donate_thanks: 'Nous sommes reconnaissants envers chaque utilisateur qui fait confiance à HealthMonitor pour suivre sa santé au quotidien.',
+    donate_body: 'Cette application est entièrement gratuite. Si vous la trouvez utile, soutenez-nous avec un montant symbolique — le prix d\'un café',
+    donate_beneficiary: 'Bénéficiaire', donate_account: 'Numéro de compte OTP',
+    donate_done: '✓ Merci, j\'ai effectué le virement!', donate_later: '⏰ Me rappeler dans 30 jours', donate_skip: 'Ignorer',
+    toast_saved: '✅ Mesure enregistrée', toast_deleted: '🗑️ Supprimé', toast_csv: '✅ CSV téléchargé!', toast_pdf: '✅ Fenêtre d\'impression PDF ouverte', toast_migrated: '📦 Anciennes données migrées!', toast_no_data: '⚠️ Pas de données!', toast_donated: '🙏 Merci pour votre soutien!', med_log_save: '💊 Enregistrer la prise', med_panel_empty: '💊 Aucun médicament. Ajoutez-en dans l\'onglet Médicaments.', toast_med_log: '💊 Prise enregistrée!',
+    warn_bp: '⚠️ Tension et pouls sont obligatoires!', warn_med_name: '⚠️ Le nom du médicament est obligatoire!', warn_popup: '⚠️ Popup bloqué par le navigateur. Veuillez autoriser!',
+  }
+};
+
+let LANG = localStorage.getItem('egmon_lang') || 'hu';
+function t(key) { return (LANGS[LANG] && LANGS[LANG][key]) || LANGS.hu[key] || key; }
+
+function applyLang() {
+  document.documentElement.lang = LANG;
+  // Header
+  const hTitle = document.getElementById('app-title');
+  if (hTitle) hTitle.innerHTML = t('header_title');
+  const hSub = document.querySelector('[data-i18n="header_sub"]');
+  if (hSub) hSub.innerHTML = t('header_sub').replace(/·/g, '<span class="header-dot"></span>').replace(/ {2}/g,' ');
+  // Tabs
+  ['tab_meres','tab_grafikon','tab_gyogyszer','tab_nyomtatas'].forEach(k => {
+    const el = document.querySelector('[data-i18n="'+k+'"]');
+    if (el) el.textContent = t(k);
+  });
+  // theme gomb szövegét az applyTheme frissíti
+  // Measurement tab
+  setText('card-title-time', t('time_title'));
+  setTimePill('reggel', t('time_reggel'));
+  setTimePill('délben', t('time_delben'));
+  setTimePill('este', t('time_este'));
+  setText('card-title-bp', t('bp_title'));
+  setLabel('lbl-sys', t('lbl_sys'));
+  setLabel('lbl-dia', t('lbl_dia'));
+  setLabel('lbl-pulse', t('lbl_pulse'));
+  setToggleLabel('togW', t('lbl_weight_toggle'));
+  setToggleLabel('togS', t('lbl_sugar_toggle'));
+  setText('lbl-tog-med', t('lbl_med_daily') || '💊 Gyógyszeres kezelés');
+  setAttr('noteInput','placeholder', t('note_placeholder'));
+  setEl('saveBtn', t('save_btn'));
+  setText('stats-card-title', t('stats_title'));
+  // Chart tab
+  setEl('ctBp', t('chart_bp'));
+  setEl('ctWeight', t('chart_weight'));
+  setEl('ctSugar', t('chart_sugar'));
+  setFilterLabel('fMorning', t('filter_morning'));
+  setFilterLabel('fNoon', t('filter_noon'));
+  setFilterLabel('fEvening', t('filter_evening'));
+  // Medicine tab
+  setText('my-meds-title', t('my_meds_title'));
+  setEl('addMedBtn', t('add_med_btn'));
+  // Print tab
+  setText('hist-card-title', t('hist_title'));
+  setEl('clearBtn', t('clear_btn'));
+  setText('export-card-title', t('export_title'));
+  setText('csv-card-title', t('csv_title'));
+  setText('csv-card-sub', t('csv_sub'));
+  setEl('exportCsvBtn', t('csv_btn'));
+  setText('pdf-card-title', t('pdf_title'));
+  setText('pdf-card-sub', t('pdf_sub'));
+  setEl('exportPdfBtn', t('pdf_btn'));
+  // Medicine modal
+  setEl('medCancelBtn', t('btn_cancel'));
+  setEl('medSaveBtn', t('btn_save'));
+  setLabel('lbl-med-name', t('med_name_lbl'));
+  setAttr('medName','placeholder', t('med_name_ph'));
+  setLabel('lbl-med-cat', t('med_cat_lbl'));
+  setEl('medCatBp', t('med_cat_bp'));
+  setEl('medCatSugar', t('med_cat_sugar'));
+  setEl('medCatWeight', t('med_cat_weight'));
+  setEl('medCatOther', t('med_cat_other'));
+  setLabel('lbl-med-dose', t('med_dose_lbl'));
+  setAttr('medDose','placeholder', t('med_dose_ph'));
+  setLabel('lbl-med-duration', t('med_duration_lbl'));
+  setAttr('medDuration','placeholder', t('med_duration_ph'));
+  setLabel('lbl-med-note', t('med_note_lbl'));
+  setAttr('medNote','placeholder', t('med_note_ph'));
+  setText('med-when-lbl', t('med_when_lbl'));
+  setMedTimePill('lefekvés', t('med_time_lekveles'));
+  // Donate modal
+  setText('donate-title', t('donate_title'));
+  setText('donate-thanks', t('donate_thanks'));
+  setText('donate-body-text', t('donate_body'));
+  setText('donate-beneficiary-lbl', t('donate_beneficiary'));
+  setText('donate-account-lbl', t('donate_account'));
+  setEl('donateDoneBtn', t('donate_done'));
+  setEl('donateLaterBtn', t('donate_later'));
+  setEl('donateSkipBtn', t('donate_skip'));
+  // Téma gomb szövege
+  applyTheme(document.body.classList.contains('dark'));
+  // Re-render dynamic content
+  renderMedicines();
+  renderStats();
+  renderHistory();
+}
+
+function setText(id, txt) { const el=document.getElementById(id); if(el) el.textContent=txt; }
+function setEl(id, txt)   { const el=document.getElementById(id); if(el) el.textContent=txt; }
+function setLabel(id, txt){ const el=document.getElementById(id); if(el) el.textContent=txt; }
+function setAttr(id, attr, val){ const el=document.getElementById(id); if(el) el.setAttribute(attr,val); }
+function setToggleLabel(toggleId, txt){
+  const tog=document.getElementById(toggleId);
+  if(tog && tog.previousElementSibling) tog.previousElementSibling.textContent=txt;
+}
+function setTimePill(dataT, txt){
+  const el=document.querySelector('.time-pill[data-t="'+dataT+'"]');
+  if(el) el.textContent=txt;
+}
+function setMedTimePill(dataMt, txt){
+  const el=document.querySelector('.med-time-pill[data-mt="'+dataMt+'"]');
+  if(el) el.textContent=txt;
+}
+function setFilterLabel(checkId, txt){
+  const el=document.getElementById(checkId);
+  if(el && el.parentElement) {
+    const span=el.parentElement.querySelector('.label-text');
+    if(span) span.textContent=txt;
+  }
+}
+
+// ============================================================
+// BOOT
+// ============================================================
+// ============================================================
+// TÉMA
+// ============================================================
+function applyTheme(dark) {
+  document.body.classList.toggle('dark', dark);
+  const btn = document.getElementById('themeToggle');
+  if (btn) btn.textContent = dark ? t('light') : t('dark');
+  localStorage.setItem('egmon_dark', dark ? '1' : '0');
+}
+
+(function() {
+  load();
+  initToggles();
+  setTime(autoTime());
+  renderMonthSelectors();
+  renderStats();
+  updateChartTypeButtons();
+
+  // Régi adatformátum migrálása
+  const old = localStorage.getItem('egeszseg_monitor_havi');
+  if (old && !Object.keys(S.measurements).length) {
+    try {
+      const oldData = JSON.parse(old);
+      Object.entries(oldData).forEach(([ym, arr]) => {
+        S.measurements[ym] = arr.map(m => ({
+          date:m.date, time:m.timeOfDay||'reggel',
+          sys:m.systolic, dia:m.diastolic, pulse:m.pulse,
+          weight:m.weight||undefined, sugar:m.bloodSugar||undefined
+        }));
+      });
+      save();
+      toast(t('toast_migrated'));
+    } catch(e) {}
+  }
+
+  initEvents();
+  applyTheme(localStorage.getItem('egmon_dark') === '1');
+  applyLang();
+
+  // ADOMÁNY FELUGRÓ
+  (function() {
+    const now = Date.now();
+    const MONTH_MS = 30 * 24 * 60 * 60 * 1000;
+    if (!localStorage.getItem('egmon_first_run')) {
+      localStorage.setItem('egmon_first_run', String(now));
+    }
+    const firstRun  = parseInt(localStorage.getItem('egmon_first_run') || now);
+    const skipUntil = parseInt(localStorage.getItem('egmon_donate_skip') || '0');
+    const donated   = localStorage.getItem('egmon_donated') === '1';
+    // 1 hónap után jelenik meg, majd havonta ismétlődik amíg nem adományoz
+    if (!donated && now >= firstRun + MONTH_MS && now >= skipUntil) {
+      document.getElementById('donateModal').classList.add('open');
+    }
+    document.getElementById('donateDoneBtn').addEventListener('click', () => {
+      localStorage.setItem('egmon_donated', '1');
+      document.getElementById('donateModal').classList.remove('open');
+      toast(t('toast_donated'));
+    });
+    document.getElementById('donateLaterBtn').addEventListener('click', () => {
+      // "Emlékeztess 30 nap múlva" → 30 nap múlva újra
+      localStorage.setItem('egmon_donate_skip', String(now + MONTH_MS));
+      document.getElementById('donateModal').classList.remove('open');
+    });
+    document.getElementById('donateSkipBtn').addEventListener('click', () => {
+      // "Kihagyom" → következő hónap végén újra megjelenik
+      localStorage.setItem('egmon_donate_skip', String(now + MONTH_MS));
+      document.getElementById('donateModal').classList.remove('open');
+    });
+  })();
+})();
+</script>
+
+
+
+</body>
+</html>
