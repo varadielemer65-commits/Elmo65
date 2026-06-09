@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="hu">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Emberi Hang – Szabálylabor V5 tiszta logika</title>
+<style>
+:root{
+  --bg:#0f172a;--panel:#172033;--panel2:#1f2a44;--text:#f8fafc;--muted:#a8b3c7;--border:#334155;
+  --blue:#60a5fa;--green:#22c55e;--red:#ef4444;--pink:#ec4899;--black:#020617;--orange:#f97316;--yellow:#eab308;--purple:#a855f7;
+}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(circle at top left,rgba(96,165,250,.16),transparent 34%),var(--bg);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+header{position:sticky;top:0;z-index:30;background:rgba(15,23,42,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:16px 20px}
+h1{font-size:23px;margin:0 0 4px} h2{font-size:17px;margin:0 0 10px} h3{font-size:15px;margin:14px 0 8px}
+header p{margin:0;color:var(--muted);font-size:14px}.small{color:var(--muted);font-size:12px;line-height:1.45}.tiny{color:var(--muted);font-size:11px;line-height:1.4}
+.layout{display:grid;grid-template-columns:300px minmax(470px,1fr)430px;min-height:calc(100vh - 74px)}
+aside,main,.right{padding:16px;border-right:1px solid var(--border)}.right{border-right:0}
+.card{background:linear-gradient(180deg,rgba(31,42,68,.98),rgba(23,32,51,.98));border:1px solid var(--border);border-radius:18px;padding:14px;margin-bottom:14px;box-shadow:0 10px 30px rgba(0,0,0,.17)}
+button,input,select,textarea{font:inherit}input,select,textarea{width:100%;border:1px solid var(--border);border-radius:12px;background:#0b1220;color:var(--text);padding:10px;outline:none}textarea{min-height:92px;resize:vertical}
+label{display:block;margin:10px 0 5px;color:var(--muted);font-size:13px;font-weight:700}
+button{border:0;border-radius:12px;padding:10px 12px;cursor:pointer;font-weight:800}
+.primary{background:var(--blue);color:#061427}.secondary{background:#334155;color:var(--text)}.success{background:var(--green);color:#06220f}.danger{background:#7f1d1d;color:#fecaca}.ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}
+.row{display:flex;gap:8px;align-items:center}.row>*{flex:1}.split{display:grid;grid-template-columns:1fr 1fr;gap:8px}.split3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.navbtn{width:100%;display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:8px;text-align:left;border:1px solid var(--border);background:#111827;color:var(--text)}.navbtn.active{outline:2px solid rgba(96,165,250,.35);border-color:var(--blue)}
+.tag,.metric,.pill{display:inline-block;border-radius:999px;padding:3px 8px;font-size:12px;border:1px solid var(--border);background:#0b1220;color:var(--muted);margin:3px 5px 3px 0}.metric{color:#dbeafe;min-width:28px;text-align:center}
+.rule{background:rgba(15,23,42,.56);border:1px solid var(--border);border-radius:16px;padding:12px;margin-bottom:10px}
+.rule-head{display:flex;justify-content:space-between;gap:10px;color:var(--muted);font-size:12px;margin-bottom:8px}
+.notice{border:1px dashed rgba(96,165,250,.5);background:rgba(96,165,250,.08);border-radius:14px;padding:10px;color:#dbeafe;font-size:13px;line-height:1.45}
+.warn{border-color:rgba(234,179,8,.55);background:rgba(234,179,8,.09);color:#fef3c7}
+.code,pre{background:#020617;border:1px solid var(--border);color:#d1d5db;border-radius:14px;padding:11px;white-space:pre-wrap;overflow:auto;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;line-height:1.45}
+pre{min-height:190px;max-height:360px}
+.hit{margin-top:9px;padding:9px;border-radius:12px;border:1px solid rgba(96,165,250,.35);background:rgba(96,165,250,.08);font-size:13px;line-height:1.5}
+.cat-dot{display:inline-block;font-size:18px;line-height:1;vertical-align:-2px;margin-right:5px;text-shadow:0 0 12px currentColor}
+.checks{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}.checks label{margin:0;font-weight:600;background:#0b1220;border:1px solid var(--border);border-radius:12px;padding:8px;color:var(--text);font-size:12px}.checks input{width:auto;margin-right:6px}
+@media(max-width:1180px){.layout{grid-template-columns:280px 1fr}.right{grid-column:1/-1;border-top:1px solid var(--border)}}@media(max-width:760px){.layout{display:block}aside,main,.right{border-right:0;border-bottom:1px solid var(--border)}.split,.split3{grid-template-columns:1fr}.checks{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Emberi Hang – Szabálylabor V5 tiszta logika</h1>
+  <p>Indexált szabálytár: kritikus kategóriák, összevont ember/személy elleni sértés, irónia-módosítók, súlyozott hergelésmotor, kétséges találatok.</p>
+</header>
+
+<div class="layout">
+  <aside>
+    <div class="card">
+      <h2>Nézetek</h2>
+      <button class="navbtn active" data-view="entries" onclick="setView('entries')"><span>📚 Bejegyzések</span><span class="metric" id="mEntries">0</span></button>
+      <button class="navbtn" data-view="categories" onclick="setView('categories')"><span>🧭 Kategóriák</span><span class="metric">8</span></button>
+      <button class="navbtn" data-view="exceptions" onclick="setView('exceptions')"><span>✅ Kivételek</span><span class="metric" id="mExceptions">0</span></button>
+      <button class="navbtn" data-view="uncertain" onclick="setView('uncertain')"><span>⚪ Kétséges</span><span class="metric" id="mUncertain">0</span></button>
+      <button class="navbtn" data-view="hate" onclick="setView('hate')"><span>⚫ Hergelésmotor</span><span class="metric">4+</span></button>
+      <button class="navbtn" data-view="irony" onclick="setView('irony')"><span>🎭 Irónia</span><span class="metric">mod</span></button>
+      <button class="navbtn" data-view="test" onclick="setView('test')"><span>🧪 Teszt</span><span class="metric">go</span></button>
+      <button class="navbtn" data-view="export" onclick="setView('export')"><span>📦 Export</span><span class="metric">JS</span></button>
+    </div>
+    <div class="card">
+      <h2>Szűrés</h2>
+      <label>Kategória</label><select id="filterCategory" onchange="renderAll()"></select>
+      <label>Keresés</label><input id="searchText" oninput="renderAll()" placeholder="kifejezés, tag, megjegyzés...">
+      <label>Akció</label><select id="filterAction" onchange="renderAll()"><option value="">mind</option><option value="opal">opal</option><option value="marker">marker</option><option value="ignore">ignore</option><option value="learn">learn</option></select>
+    </div>
+    <div class="card">
+      <h2>Adatkezelés</h2>
+      <button class="secondary" style="width:100%;margin-bottom:8px" onclick="downloadJson()">JSON mentés</button>
+      <button class="ghost" style="width:100%;margin-bottom:8px" onclick="importJson()">JSON import</button>
+      <button class="danger" style="width:100%" onclick="resetAll()">Alapállapot</button>
+    </div>
+  </aside>
+
+  <main>
+    <div class="card">
+      <h2>Új / szerkesztett bejegyzés</h2>
+      <p class="small">A „bizonyosság” mező kikerült. A főprogram érzékenysége dönt: gyenge állásban a három kritikus kategória, erős állásban az ember/személy elleni sértések is aktívak.</p>
+      <input type="hidden" id="entryId">
+      <label>Kifejezés vagy mondat</label><textarea id="entryText" placeholder="Pl. ezek mind bűnözők / mindent bele / megöllek"></textarea>
+      <div class="split">
+        <div><label>Kategória</label><select id="entryCategory" onchange="onCategoryChanged()"></select></div>
+        <div><label>Súlyosság</label><select id="entrySeverity" onchange="applyRecommendedSettings()">
+          <option value="0">0 – kivétel / semleges / kétséges</option>
+          <option value="1">1 – nagyon enyhe, kontextusfüggő</option>
+          <option value="2">2 – burkolt / virágnyelvi / enyhe</option>
+          <option value="3">3 – közepes / lekicsinylő / jelzendő</option>
+          <option value="4">4 – erős / személyes / súlyos</option>
+          <option value="5">5 – kritikus / legsúlyosabb</option>
+        </select></div>
+      </div>
+      <div class="split">
+        <div><label>Típus</label><select id="entryType"><option value="phrase">phrase</option><option value="keyword">keyword</option><option value="regex">regex</option><option value="semantic">semantic</option></select></div>
+        <div><label>Akció</label><select id="entryAction"><option value="opal">opal</option><option value="marker">marker</option><option value="ignore">ignore</option><option value="learn">learn</option></select></div>
+      </div>
+      <div id="autoAdvice" class="notice" style="margin-top:10px">Ajánlás: válassz kategóriát és súlyosságot.</div>
+
+      <div class="split">
+        <div>
+          <label>Hangnem / módosító</label>
+          <select id="entryTone" onchange="applyRecommendedSettings()">
+            <option value="neutral">semleges</option>
+            <option value="irony">ironikus</option>
+            <option value="sarcasm">szarkasztikus</option>
+            <option value="humor">humoros</option>
+            <option value="quote">idézett</option>
+            <option value="threatening">fenyegető</option>
+            <option value="condescending">lekezelő</option>
+          </select>
+        </div>
+        <div>
+          <label>Alcímke / fokozatnév</label>
+          <select id="entrySubtype">
+            <option value="">automatikus / nincs</option>
+            <option value="dignity">méltóságsértés</option>
+            <option value="personalInsult">személyes sértés</option>
+            <option value="belittling">lekicsinylés</option>
+            <option value="mildPersonal">enyhe személyes minősítés</option>
+            <option value="uncertainTone">kétséges árnyalat</option>
+            <option value="flowerLanguage">virágnyelvi / burkolt</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="hateSignalBox" style="display:none">
+        <label>⚫ Hergelés jelentésjelek</label>
+        <div class="checks">
+          <label><input type="checkbox" id="sigGroup" onchange="updateHateScore()">csoportjelölő +1</label>
+          <label><input type="checkbox" id="sigGeneral" onchange="updateHateScore()">kollektív általánosítás +1</label>
+          <label><input type="checkbox" id="sigCrime" onchange="updateHateScore()">kriminalizálás +2</label>
+          <label><input type="checkbox" id="sigScapegoat" onchange="updateHateScore()">bűnbakképzés +2</label>
+          <label><input type="checkbox" id="sigExclude" onchange="updateHateScore()">kirekesztés +3</label>
+          <label><input type="checkbox" id="sigDehuman" onchange="updateHateScore()">dehumanizálás +3</label>
+          <label><input type="checkbox" id="sigIncite" onchange="updateHateScore()">eltávolítás / uszítás +4</label>
+          <label><input type="checkbox" id="sigIrony" onchange="updateHateScore()">irónia csoportellenes célzással +2</label>
+        </div>
+        <div id="hateScoreBox" class="notice warn" style="margin-top:10px">Hergelés pontszám: 0</div>
+      </div>
+
+      <label>Tag-ek, vesszővel</label><input id="entryTags" placeholder="pl. kollektív bűnösség, kriminalizálás, irónia">
+      <label>Megjegyzés / indoklás</label><textarea id="entryNote" placeholder="Miért került ide? Milyen jelentéshelyzetet fed?"></textarea>
+      <div class="row" style="margin-top:12px">
+        <button class="success" onclick="saveEntry()">Mentés az indexált szabálytárba</button>
+        <button class="secondary" onclick="clearForm()">Űrlap ürítése</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 id="viewTitle">Bejegyzések</h2>
+      <div id="viewBox"></div>
+    </div>
+  </main>
+
+  <section class="right">
+    <div class="card">
+      <h2>Gyors tanítás</h2>
+      <p class="small">A főprogram később így küldhet kétséges szöveget: <code>?text=...</code></p>
+      <label>Beérkező / kétséges szöveg</label><textarea id="incomingText" placeholder="Ide kerülhet a kétséges kifejezés..."></textarea>
+      <div class="row" style="margin-top:10px">
+        <button class="primary" onclick="prefillFromIncoming()">Űrlapba teszem</button>
+        <button class="secondary" onclick="saveIncomingAsUncertain()">Kétséges listába</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Index összefoglaló</h2>
+      <div id="indexSummary"></div>
+    </div>
+    <div class="card">
+      <h2>Ruleset export előnézet</h2>
+      <pre id="miniExport"></pre>
+    </div>
+  </section>
+</div>
+
+<script>
+const KEY = 'emberi-hang-rulelab-v5-clean-logic';
+const CATEGORIES = [
+  {id:'lifeThreat', icon:'🔴', label:'Életellenes / testi fenyegetés', priority:600, critical:true, color:'#ef4444'},
+  {id:'sexualAggression', icon:'●', label:'Szexuális agresszió / testi autonómia', priority:500, critical:true, color:'#ec4899'},
+  {id:'hateIncitement', icon:'⚫', label:'Hergelés / csoportkriminalizálás', priority:400, critical:true, color:'#111827'},
+  {id:'humanOffense', icon:'🟠', label:'Emberi méltóság / személy elleni sértés', priority:300, critical:false, color:'#f97316'},
+  {id:'positiveException', icon:'✅', label:'Jóindulatú kivétel', priority:0, critical:false, color:'#22c55e'},
+  {id:'debateException', icon:'⚖️', label:'Vita / politikai-jogi kivétel', priority:0, critical:false, color:'#60a5fa'},
+  {id:'neutralException', icon:'🚫', label:'Semleges / nem szabályozandó', priority:0, critical:false, color:'#94a3b8'},
+  {id:'uncertain', icon:'⚪', label:'Kétséges / tanítandó', priority:10, critical:false, color:'#d1d5db'}
+];
+const HATE_POINTS = {group:1,general:1,crime:2,scapegoat:2,exclude:3,dehuman:3,incite:4,irony:2};
+const seed = {
+  meta:{version:'5.0-clean-logic',createdBy:'Emberi Hang Szabálylabor V5',updatedAt:new Date().toISOString()},
+  entries:[
+    e('megöllek','lifeThreat',5,'phrase','opal','neutral','',[],['közvetlen fenyegetés'],'Közvetlen életellenes fenyegetés.'),
+    e('agyonverlek','lifeThreat',5,'phrase','opal','neutral','',[],['testi fenyegetés'],'Közvetlen testi bántalmazás kilátásba helyezése.'),
+    e('tudom hol laksz, meg fogod bánni','lifeThreat',4,'phrase','opal','threatening','',[],['burkolt fenyegetés'],'Személyes elérhetőséggel összekötött megtorlási fenyegetés.'),
+    e('nem mondhatsz nemet','sexualAggression',5,'phrase','opal','neutral','',[],['beleegyezés tagadása'],'A beleegyezés hiányát tagadó szexuális kényszerítési minta.'),
+    e('ló lány álma verjen hátba','sexualAggression',2,'phrase','marker','humor','flowerLanguage',[],['virágnyelv','burkolt szexuális utalás'],'Burkolt, trágár áthallású virágnyelv; nem közvetlen kényszerítés.'),
+    e('ezek mind bűnözők','hateIncitement',5,'semantic','opal','neutral','',{group:true,general:true,crime:true},['csoportjelölő','kollektív bűnösség','kriminalizálás'],'Csoportjelölő + kollektív általánosítás + kriminalizálás.'),
+    e('persze, ezek mind csak becsületes dolgozó emberek, azért tűnik el utánuk minden','hateIncitement',5,'semantic','opal','irony','',{group:true,general:true,crime:true,irony:true},['irónia','csoportkriminalizálás'],'Ironikus csomagolásban megjelenő csoportkriminalizáló célzás.'),
+    e('ki kell őket takarítani','hateIncitement',5,'semantic','opal','neutral','',{group:true,incite:true},['uszítás','eltávolítás'],'Csoport eltávolítására utaló uszító minta.'),
+    e('nem is vagy ember','humanOffense',5,'phrase','marker','neutral','dignity',[],['méltóságsértés','dehumanizálás'],'Emberi mivolt tagadása.'),
+    e('hülye vagy','humanOffense',4,'phrase','marker','neutral','personalInsult',[],['személyes sértés'],'Személyre irányuló sértő minősítés.'),
+    e('csak ennyit tudsz','humanOffense',3,'phrase','marker','condescending','belittling',[],['lekicsinylés','kompetencia-tagadás'],'Képességet lekicsinylő fordulat.'),
+    e('ez elég gyenge volt tőled','humanOffense',2,'phrase','marker','neutral','mildPersonal',[],['enyhe személyes minősítés'],'Enyhébb, személyre húzó bántó árnyalat.'),
+    e('érdekes próbálkozás','humanOffense',1,'phrase','learn','irony','uncertainTone',[],['kétséges irónia'],'Kontextusfüggő, lehet jóindulatú vagy lekezelő.'),
+    e('mindent bele','positiveException',0,'phrase','ignore','neutral','',[],['biztatás','jóindulatú'],'Pozitív biztatás, nem hergelés.'),
+    e('óriási vagy','positiveException',0,'phrase','ignore','neutral','',[],['dicséret'],'Pozitív visszajelzés.'),
+    e('bizonyítatlan feltételezés','debateException',0,'phrase','ignore','neutral','',[],['tényellenőrzés','jogi óvatosság'],'Jogi-politikai óvatos megfogalmazás.'),
+    e('nem igazolt tény','debateException',0,'phrase','ignore','neutral','',[],['tényellenőrzés'],'Tényellenőrző vagy vitázó fordulat.'),
+    e('jó reggelt','neutralException',0,'phrase','ignore','neutral','',[],['semleges'],'Semleges, nem szabályozandó fordulat.')
+  ],
+  uncertain:[]
+};
+function e(text,category,severity,type,action,tone,subtype,signals,tags,note){
+  return {id:'EH-'+Math.random().toString(36).slice(2,7)+'-'+Date.now().toString(36).slice(-4), text, category, severity, type, action, tone, subtype, signals:signals||{}, tags, note, source:'seed', createdAt:new Date().toISOString()};
+}
+let data=load();
+let activeView='entries';
+
+function load(){try{const raw=localStorage.getItem(KEY);if(raw)return JSON.parse(raw)}catch(_){}return JSON.parse(JSON.stringify(seed))}
+function save(){data.meta.updatedAt=new Date().toISOString();localStorage.setItem(KEY,JSON.stringify(data));renderAll()}
+function resetAll(){if(confirm('Biztosan visszaállítod a V5 tiszta logika alapállapotát?')){data=JSON.parse(JSON.stringify(seed));save()}}
+function cat(id){return CATEGORIES.find(c=>c.id===id)||CATEGORIES[0]}
+function esc(s){return String(s??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'","&#039;")}
+function norm(s){return String(s||'').toLowerCase().replace(/[3]/g,'e').replace(/[4@]/g,'a').replace(/[0]/g,'o').replace(/[1]/g,'i').replace(/([a-záéíóöőúüű])\1{2,}/gi,'$1$1').replace(/[\s\-_*\.]+/g,' ').trim()}
+function splitTags(s){return String(s||'').split(/,|\n/).map(x=>x.trim()).filter(Boolean)}
+function huBoundary(phrase){return '(?<![a-záéíóöőúüű])'+phrase.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/\s+/g,'\\s+')+'(?![a-záéíóöőúüű])'}
+function makeRegex(entry){try{if(entry.type==='regex')return new RegExp(entry.text,'iu');return new RegExp(huBoundary(norm(entry.text)),'iu')}catch(_){return null}}
+
+function initSelectors(){
+  const opts='<option value="">mind</option>'+CATEGORIES.map(c=>`<option value="${c.id}">${c.icon} ${esc(c.label)}</option>`).join('');
+  const catOpts=CATEGORIES.map(c=>`<option value="${c.id}">${c.icon} ${esc(c.label)}</option>`).join('');
+  document.getElementById('filterCategory').innerHTML=opts;
+  document.getElementById('entryCategory').innerHTML=catOpts;
+}
+function isCritical(category){return ['lifeThreat','sexualAggression','hateIncitement'].includes(category)}
+function recommendedSettings(category,severity){
+  severity=Number(severity||0);
+  if(category==='positiveException')return {severity:0,type:'phrase',action:'ignore',subtype:'',advice:'✅ Jóindulatú kivétel: ignore. Pozitív, támogató, dicsérő vagy jóindulatú fordulat.'};
+  if(category==='debateException')return {severity:0,type:'phrase',action:'ignore',subtype:'',advice:'⚖️ Vita/politikai-jogi kivétel: ignore. Kritika, tényellenőrzés vagy jogi óvatosság.'};
+  if(category==='neutralException')return {severity:0,type:'phrase',action:'ignore',subtype:'',advice:'🚫 Semleges: ignore. Nem szabályozandó.'};
+  if(category==='uncertain')return {severity:0,type:'phrase',action:'learn',subtype:'',advice:'⚪ Kétséges: learn. Emberi döntést igényel.'};
+
+  if(category==='lifeThreat'){
+    if(severity>=4)return {type:'phrase',action:'opal',subtype:'',advice:'🔴 Kritikus kategória. Közvetlen vagy erős burkolt testi/életellenes fenyegetés: opal.'};
+    if(severity>=2)return {type:'phrase',action:'marker',subtype:'',advice:'🔴 Burkolt vagy kontextusfüggő fenyegetés: marker. Csak valódi fenyegetésnél emeld.'};
+    return {type:'phrase',action:'learn',subtype:'',advice:'🔴 Gyenge fenyegetésjel: learn.'};
+  }
+  if(category==='sexualAggression'){
+    if(severity>=4)return {type:'phrase',action:'opal',subtype:'',advice:'● Kritikus kategória. Kényszerítés, fenyegetés vagy testi autonómia sérülése: opal.'};
+    if(severity===3)return {type:'phrase',action:'marker',subtype:'',advice:'● Durva szexuális megalázás vagy agresszív dominancia: marker, szükség esetén opal.'};
+    if(severity===2)return {type:'phrase',action:'marker',subtype:'flowerLanguage',advice:'● 2-es: virágnyelvi, burkolt, trágár áthallású, de nem közvetlen kényszerítő minta.'};
+    return {type:'phrase',action:'learn',subtype:'flowerLanguage',advice:'● 1-es: enyhén kétértelmű szexuális utalás: learn.'};
+  }
+  if(category==='hateIncitement'){
+    if(severity>=4)return {type:'semantic',action:'opal',subtype:'',advice:'⚫ Hergelés: jelentésjelek alapján dönt. 4+ pontnál opal.'};
+    if(severity>=2)return {type:'semantic',action:'marker',subtype:'',advice:'⚫ Gyanús csoportosító minta: marker/learn. Egyetlen szó nem elég.'};
+    return {type:'semantic',action:'learn',subtype:'',advice:'⚫ Gyenge hergelésjel: learn.'};
+  }
+  if(category==='humanOffense'){
+    if(severity>=5)return {type:'phrase',action:'marker',subtype:'dignity',advice:'🟠 5: méltóságsértés/dehumanizálás. Erős fokozatban jelzendő, szükség esetén opal.'};
+    if(severity===4)return {type:'phrase',action:'marker',subtype:'personalInsult',advice:'🟠 4: személyes sértés. Marker.'};
+    if(severity===3)return {type:'phrase',action:'marker',subtype:'belittling',advice:'🟠 3: lekicsinylés/lekezelés. Marker.'};
+    if(severity===2)return {type:'phrase',action:'marker',subtype:'mildPersonal',advice:'🟠 2: enyhe személyes minősítés. Marker, kontextusfüggő.'};
+    return {type:'phrase',action:'learn',subtype:'uncertainTone',advice:'🟠 1: kétséges bántó árnyalat. Learn.'};
+  }
+  return {type:'phrase',action:'learn',subtype:'',advice:'Alap ajánlás: learn.'};
+}
+function onCategoryChanged(){
+  const category=document.getElementById('entryCategory').value;
+  if(isCritical(category))document.getElementById('entrySeverity').value='5';
+  if(['positiveException','debateException','neutralException','uncertain'].includes(category))document.getElementById('entrySeverity').value='0';
+  applyRecommendedSettings();
+}
+function applyRecommendedSettings(){
+  const category=document.getElementById('entryCategory').value;
+  const severityEl=document.getElementById('entrySeverity');
+  const rec=recommendedSettings(category,Number(severityEl.value));
+  if(rec.severity!==undefined)severityEl.value=String(rec.severity);
+  document.getElementById('entryType').value=rec.type;
+  document.getElementById('entryAction').value=rec.action;
+  if(rec.subtype!==undefined)document.getElementById('entrySubtype').value=rec.subtype;
+  document.getElementById('hateSignalBox').style.display=category==='hateIncitement'?'block':'none';
+  const box=document.getElementById('autoAdvice'); if(box)box.textContent='Ajánlás: '+rec.advice;
+  updateHateScore();
+}
+function hateSignalsFromForm(){
+  return {
+    group:document.getElementById('sigGroup')?.checked||false,
+    general:document.getElementById('sigGeneral')?.checked||false,
+    crime:document.getElementById('sigCrime')?.checked||false,
+    scapegoat:document.getElementById('sigScapegoat')?.checked||false,
+    exclude:document.getElementById('sigExclude')?.checked||false,
+    dehuman:document.getElementById('sigDehuman')?.checked||false,
+    incite:document.getElementById('sigIncite')?.checked||false,
+    irony:document.getElementById('sigIrony')?.checked||false
+  };
+}
+function scoreHateSignals(sig){return Object.entries(sig||{}).reduce((sum,[k,v])=>sum+(v?(HATE_POINTS[k]||0):0),0)}
+function updateHateScore(){
+  const box=document.getElementById('hateScoreBox'); if(!box)return;
+  const score=scoreHateSignals(hateSignalsFromForm());
+  const level=score>=6?'erős hergelés':score>=4?'hergelés':score>=3?'kétséges / tanítandó':'nem elég';
+  box.textContent='Hergelés pontszám: '+score+' – '+level+' (küszöb: 4)';
+}
+function setHateSignals(sig){
+  const map={sigGroup:'group',sigGeneral:'general',sigCrime:'crime',sigScapegoat:'scapegoat',sigExclude:'exclude',sigDehuman:'dehuman',sigIncite:'incite',sigIrony:'irony'};
+  Object.entries(map).forEach(([id,k])=>{const el=document.getElementById(id);if(el)el.checked=!!(sig&&sig[k])});
+  updateHateScore();
+}
+
+function clearForm(){
+  ['entryId','entryText','entryTags','entryNote'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('entryCategory').value='humanOffense';
+  document.getElementById('entrySeverity').value='3';
+  document.getElementById('entryTone').value='neutral';
+  setHateSignals({});
+  applyRecommendedSettings();
+}
+function editEntry(id){
+  const en=data.entries.find(x=>x.id===id); if(!en)return;
+  document.getElementById('entryId').value=en.id;
+  document.getElementById('entryText').value=en.text;
+  document.getElementById('entryCategory').value=en.category;
+  document.getElementById('entrySeverity').value=String(en.severity);
+  document.getElementById('entryType').value=en.type;
+  document.getElementById('entryAction').value=en.action;
+  document.getElementById('entryTone').value=en.tone||'neutral';
+  document.getElementById('entrySubtype').value=en.subtype||'';
+  document.getElementById('entryTags').value=(en.tags||[]).join(', ');
+  document.getElementById('entryNote').value=en.note||'';
+  document.getElementById('hateSignalBox').style.display=en.category==='hateIncitement'?'block':'none';
+  setHateSignals(en.signals||{});
+  applyRecommendedSettings();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function deleteEntry(id){if(confirm('Törlöd ezt a bejegyzést?')){data.entries=data.entries.filter(x=>x.id!==id);save()}}
+function saveEntry(){
+  const id=document.getElementById('entryId').value||'EH-'+Math.random().toString(36).slice(2,7)+'-'+Date.now().toString(36).slice(-4);
+  const category=document.getElementById('entryCategory').value;
+  const en={
+    id,
+    text:document.getElementById('entryText').value.trim(),
+    category,
+    severity:Number(document.getElementById('entrySeverity').value),
+    type:document.getElementById('entryType').value,
+    action:document.getElementById('entryAction').value,
+    tone:document.getElementById('entryTone').value,
+    subtype:document.getElementById('entrySubtype').value,
+    signals:category==='hateIncitement'?hateSignalsFromForm():{},
+    tags:splitTags(document.getElementById('entryTags').value),
+    note:document.getElementById('entryNote').value.trim(),
+    source:'manual',
+    createdAt:new Date().toISOString()
+  };
+  if(!en.text)return alert('Adj meg kifejezést vagy mondatot.');
+  const i=data.entries.findIndex(x=>x.id===id); if(i>=0)data.entries[i]=en; else data.entries.push(en);
+  clearForm(); save();
+}
+
+function buildIndexes(){
+  const idx={byCategory:{},byAction:{},bySeverity:{},bySubtype:{},byTone:{},byTag:{},byText:{}};
+  data.entries.forEach(en=>{
+    (idx.byCategory[en.category]??=[]).push(en.id);
+    (idx.byAction[en.action]??=[]).push(en.id);
+    (idx.bySeverity[en.severity]??=[]).push(en.id);
+    if(en.subtype)(idx.bySubtype[en.subtype]??=[]).push(en.id);
+    if(en.tone)(idx.byTone[en.tone]??=[]).push(en.id);
+    (en.tags||[]).forEach(t=>(idx.byTag[t]??=[]).push(en.id));
+    idx.byText[norm(en.text)]=en.id;
+  });
+  return idx;
+}
+function filteredEntries(){
+  const fc=document.getElementById('filterCategory')?.value||'';
+  const fa=document.getElementById('filterAction')?.value||'';
+  const q=norm(document.getElementById('searchText')?.value||'');
+  return data.entries.filter(en=>{
+    if(fc&&en.category!==fc)return false;
+    if(fa&&en.action!==fa)return false;
+    if(q){
+      const blob=norm([en.text,en.category,en.action,en.tone,en.subtype,en.note,(en.tags||[]).join(' ')].join(' '));
+      if(!blob.includes(q))return false;
+    }
+    return true;
+  });
+}
+function setView(v){activeView=v;document.querySelectorAll('.navbtn').forEach(b=>b.classList.toggle('active',b.dataset.view===v));renderAll()}
+function entryNode(en){
+  const c=cat(en.category), hs=en.category==='hateIncitement'?scoreHateSignals(en.signals):null;
+  return `<div class="rule" style="border-left:6px solid ${c.color}">
+    <div class="rule-head"><span>${c.icon} ${esc(c.label)}</span><span>${esc(en.id)}</span></div>
+    <strong>${esc(en.text)}</strong>
+    <p class="small">severity ${en.severity} · type ${esc(en.type)} · action ${esc(en.action)} · tone ${esc(en.tone||'neutral')}${en.subtype?' · subtype '+esc(en.subtype):''}${hs!==null?' · hateScore '+hs:''}</p>
+    <p>${(en.tags||[]).map(t=>`<span class="tag">${esc(t)}</span>`).join('')}</p>
+    <p class="small">${esc(en.note||'')}</p>
+    <div class="row"><button class="secondary" onclick="editEntry('${en.id}')">Szerkesztés</button><button class="danger" onclick="deleteEntry('${en.id}')">Törlés</button></div>
+  </div>`;
+}
+function renderEntries(){const rows=filteredEntries();document.getElementById('viewTitle').textContent='📚 Bejegyzések';document.getElementById('viewBox').innerHTML=rows.length?rows.map(entryNode).join(''):'<p class="small">Nincs találat.</p>'}
+function renderCategories(){
+  const idx=buildIndexes();
+  document.getElementById('viewTitle').textContent='🧭 Kategóriák';
+  document.getElementById('viewBox').innerHTML=CATEGORIES.map(c=>{const ids=idx.byCategory[c.id]||[];return `<div class="rule" style="border-left:6px solid ${c.color}"><strong>${c.icon} ${esc(c.label)}</strong><p class="small">Bejegyzések: ${ids.length}${c.critical?' · kritikus fő kategória':''}</p><button class="secondary" onclick="document.getElementById('filterCategory').value='${c.id}';setView('entries')">Mutasd</button></div>`}).join('');
+}
+function renderExceptions(){document.getElementById('viewTitle').textContent='✅ Kivételkönyvtár';const rows=data.entries.filter(e=>['positiveException','debateException','neutralException'].includes(e.category));document.getElementById('viewBox').innerHTML=rows.length?rows.map(entryNode).join(''):'<p class="small">Nincs kivétel.</p>'}
+function renderUncertain(){document.getElementById('viewTitle').textContent='⚪ Kétséges / tanítandó beérkezések';document.getElementById('viewBox').innerHTML=(data.uncertain||[]).map((u,i)=>`<div class="rule"><strong>${esc(u.text)}</strong><p class="small">${esc(u.source||'manual')} · ${esc(u.createdAt||'')}</p><div class="row"><button class="primary" onclick="loadUncertain(${i})">Űrlapba</button><button class="danger" onclick="deleteUncertain(${i})">Törlés</button></div></div>`).join('')||'<p class="small">Nincs kétséges beérkezés.</p>'}
+function renderHate(){
+  document.getElementById('viewTitle').textContent='⚫ Hergelésmotor';
+  document.getElementById('viewBox').innerHTML=`<div class="notice">A hergelés súlyozott jelentésmotor. Nem egyetlen szó dönt, hanem több jel együttállása.</div>
+  <div class="rule"><strong>Pontok</strong><p>csoportjelölő +1 · kollektív általánosítás +1 · kriminalizálás +2 · bűnbakképzés +2 · kirekesztés +3 · dehumanizálás +3 · eltávolítás/uszítás +4 · irónia csoportellenes célzással +2</p><p class="small">0–2: nem elég · 3: kétséges/tanítandó · 4–5: hergelés · 6+: erős hergelés.</p></div>
+  <div class="rule"><strong>Példa</strong><p class="code">„Ezek mind bűnözők.” = csoportjelölő + általánosítás + kriminalizálás = 4 pont.</p><p class="code">„Persze, ezek mind csak becsületesek, azért tűnik el utánuk minden.” = ironikus csoportkriminalizálás = 6 pont.</p></div>`;
+}
+function renderIrony(){
+  document.getElementById('viewTitle').textContent='🎭 Irónia / szarkazmus';
+  document.getElementById('viewBox').innerHTML=`<div class="notice warn">Az irónia nem automatikus kivétel. Módosító réteg: lehet jóindulatú humor, vita, vagy bántó/hergelő csomagolás.</div>
+  <div class="rule"><strong>Három döntési irány</strong><p>A) jóindulatú humor → kivétel / ignore</p><p>B) politikai vagy jogi kritika → vita-kivétel / ignore</p><p>C) sértés, fenyegetés, hergelés iróniába csomagolva → erősítő módosító</p></div>
+  <div class="rule"><strong>Példák</strong><p class="code">„Ügyes vagy, megint hülyét csináltál magadból.” → ember/személy elleni sértés, ironikus/lekezelő.</p><p class="code">„Mindent bele, óriási vagy.” → jóindulatú kivétel.</p></div>`;
+}
+function classifyText(text){
+  const n=norm(text), hits=[];
+  for(const en of data.entries){
+    const re=makeRegex(en); if(!re)continue;
+    if(re.test(n)||re.test(text)){
+      const c=cat(en.category);
+      let bonus=0;
+      if(en.category==='hateIncitement')bonus=scoreHateSignals(en.signals);
+      if(en.tone==='irony'||en.tone==='sarcasm')bonus+=1;
+      hits.push({...en,categoryInfo:c,finalPriority:c.priority+Number(en.severity||0)+bonus});
+    }
+  }
+  hits.sort((a,b)=>b.finalPriority-a.finalPriority);
+  const exception=hits.find(h=>h.action==='ignore');
+  if(exception)return {final:null,exception,hits};
+  return {final:hits[0]||null,hits};
+}
+function renderTest(){document.getElementById('viewTitle').textContent='🧪 Teszt';document.getElementById('viewBox').innerHTML=`<label>Tesztszöveg</label><textarea id="testText">Ezek mind bűnözők.</textarea><button class="success" style="width:100%;margin-top:10px" onclick="runTest()">Elemzés</button><button class="secondary" style="width:100%;margin-top:8px" onclick="setView('export')">Tovább az Export nézethez</button><div id="testResult" style="margin-top:12px"></div>`}
+function runTest(){
+  const text=document.getElementById('testText').value,res=classifyText(text),box=document.getElementById('testResult');
+  if(res.exception){box.innerHTML=`<div class="notice">✅ Kivétel miatt nincs találat: <strong>${esc(res.exception.text)}</strong></div>`;return}
+  if(!res.final){box.innerHTML='<div class="notice">Nem talált ismert mintát.</div>';return}
+  const c=cat(res.final.category);
+  box.innerHTML=`<div class="rule" style="border-left:6px solid ${c.color}"><strong>${c.icon} ${esc(c.label)}</strong><p>Találat: <code>${esc(res.final.text)}</code></p><p>Akció: ${esc(res.final.action)}</p><p class="small">${esc(res.final.note||'')}</p></div><h3>Összes találat</h3>${res.hits.map(entryNode).join('')}`;
+}
+function renderExport(){
+  document.getElementById('viewTitle').textContent='📦 Export';
+  const js = rulesetJs();
+  document.getElementById('viewBox').innerHTML =
+    '<div class="notice">Itt tudod kimenteni a Szabálylabor szabályait a fő Emberi Hang bővítmény számára. A fájl neve legyen: <strong>ruleset.js</strong></div>' +
+    '<div class="notice warn" style="margin-top:8px">A pontos útvonal kiválasztása Chrome / Edge alatt működik a „Mentés másként…” gombbal. Ha a böngésző nem engedi, használd a sima letöltést, majd másold a fájlt a bővítmény mappájába.</div>' +
+    '<div class="row" style="margin-top:10px">' +
+      '<button class="success" onclick="saveRulesetAsFile()">ruleset.js mentés másként…</button>' +
+      '<button class="primary" onclick="downloadRuleset()">ruleset.js letöltés</button>' +
+    '</div>' +
+    '<div class="row" style="margin-top:8px">' +
+      '<button class="secondary" onclick="copyRuleset()">ruleset.js másolás</button>' +
+      '<button class="secondary" onclick="saveJsonAsFile()">JSON mentés másként…</button>' +
+    '</div>' +
+    '<button class="ghost" style="width:100%;margin-top:8px" onclick="selectExportText()">Export szöveg kijelölése kézi másoláshoz</button>' +
+    '<p class="small">Ajánlott cél: az Emberi Hang bővítmény mappájában a meglévő <code>ruleset.js</code> fájl felülírása. Utána a Chrome bővítmények oldalon frissítsd/újratöltsd a bővítményt.</p>' +
+    '<textarea id="exportFull" style="min-height:320px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px"></textarea>';
+  document.getElementById('exportFull').value = js;
+}
+function rulesetPayload(){return {meta:{...data.meta,exportedAt:new Date().toISOString()},categories:CATEGORIES,entries:data.entries,indexes:buildIndexes(),hateScoring:{threshold:4,points:HATE_POINTS},sensitivityModel:{weak:['lifeThreat','sexualAggression','hateIncitement'],strong:['lifeThreat','sexualAggression','hateIncitement','humanOffense']}}}
+function rulesetJs(){return '// Emberi Hang – V5 indexed clean logic ruleset.js\n(function(){\n  window.EMBERI_HANG_RULESET = '+JSON.stringify(rulesetPayload(),null,2)+';\n})();\n'}
+function downloadRuleset(){downloadFile('ruleset.js',rulesetJs(),'text/javascript;charset=utf-8')}
+function copyRuleset(){
+  const js = rulesetJs();
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(js).then(()=>alert('ruleset.js vágólapra másolva.')).catch(()=>{
+      const el=document.getElementById('exportFull');
+      if(el){el.value=js;el.focus();el.select();document.execCommand('copy');alert('ruleset.js kijelölve/másolva.');}
+    });
+  }else{
+    const el=document.getElementById('exportFull');
+    if(el){el.value=js;el.focus();el.select();document.execCommand('copy');alert('ruleset.js kijelölve/másolva.');}
+  }
+}
+function selectExportText(){
+  const el=document.getElementById('exportFull');
+  if(el){el.focus();el.select();}
+}
+
+async function saveTextWithPicker(defaultName, content, mimeType){
+  if(window.showSaveFilePicker){
+    try{
+      const ext = defaultName.toLowerCase().endsWith('.json') ? '.json' : '.js';
+      const pickerOpts = {
+        suggestedName: defaultName,
+        types: [{
+          description: ext === '.json' ? 'JSON fájl' : 'JavaScript fájl',
+          accept: { [mimeType || 'text/plain']: [ext] }
+        }]
+      };
+      const handle = await window.showSaveFilePicker(pickerOpts);
+      const writable = await handle.createWritable();
+      await writable.write(content);
+      await writable.close();
+      alert('Fájl mentve: ' + defaultName);
+      return true;
+    }catch(err){
+      if(err && err.name === 'AbortError') return false;
+      alert('A mentés másként nem sikerült. Tartalék letöltés indul. Hiba: ' + (err.message || err));
+      return false;
+    }
+  }
+  alert('Ez a böngésző nem engedi az útvonalválasztós mentést. Tartalék letöltés indul.');
+  return false;
+}
+async function saveRulesetAsFile(){
+  const ok = await saveTextWithPicker('ruleset.js', rulesetJs(), 'text/javascript');
+  if(!ok) downloadRuleset();
+}
+async function saveJsonAsFile(){
+  const ok = await saveTextWithPicker('emberi_hang_rulelab_v5.json', JSON.stringify(data,null,2), 'application/json');
+  if(!ok) downloadJson();
+}
+
+function renderCurrentView(){if(activeView==='entries')renderEntries();if(activeView==='categories')renderCategories();if(activeView==='exceptions')renderExceptions();if(activeView==='uncertain')renderUncertain();if(activeView==='hate')renderHate();if(activeView==='irony')renderIrony();if(activeView==='test')renderTest();if(activeView==='export')renderExport()}
+function renderSummary(){
+  const idx=buildIndexes();
+  document.getElementById('mEntries').textContent=data.entries.length;
+  document.getElementById('mExceptions').textContent=data.entries.filter(e=>e.action==='ignore').length;
+  document.getElementById('mUncertain').textContent=(data.uncertain||[]).length;
+  document.getElementById('indexSummary').innerHTML=CATEGORIES.map(c=>`<span class="tag">${c.icon} ${esc(c.label)}: ${(idx.byCategory[c.id]||[]).length}</span>`).join('');
+  document.getElementById('miniExport').textContent=JSON.stringify({entries:data.entries.length,indexes:Object.keys(idx),model:'V5 clean logic'},null,2);
+}
+function renderAll(){renderSummary();renderCurrentView()}
+function downloadJson(){downloadFile('emberi_hang_rulelab_v5_clean_logic.json',JSON.stringify(data,null,2),'application/json')}
+function importJson(){const inp=document.createElement('input');inp.type='file';inp.accept='.json';inp.onchange=()=>{const f=inp.files[0];const r=new FileReader();r.onload=()=>{try{data=JSON.parse(r.result);save()}catch(e){alert('Hibás JSON.')}};r.readAsText(f)};inp.click()}
+function downloadFile(name,content,type){
+  try{
+    const blob=new Blob([content],{type:type||'text/plain;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download=name;
+    a.style.display='none';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},800);
+  }catch(err){
+    alert('A letöltés nem indult el. Használd a Másolás vágólapra gombot. Hiba: '+err.message);
+  }
+}
+function prefillFromIncoming(){const t=document.getElementById('incomingText').value.trim();if(!t)return;document.getElementById('entryText').value=t;document.getElementById('entryCategory').value='uncertain';document.getElementById('entrySeverity').value='0';document.getElementById('entryTone').value='neutral';document.getElementById('entryTags').value='kétséges, tanítandó';applyRecommendedSettings()}
+function saveIncomingAsUncertain(){const t=document.getElementById('incomingText').value.trim();if(!t)return;data.uncertain=data.uncertain||[];data.uncertain.push({text:t,source:'manual/later-extension',createdAt:new Date().toISOString()});save();setView('uncertain')}
+function loadUncertain(i){const u=data.uncertain[i];if(!u)return;document.getElementById('entryText').value=u.text;document.getElementById('entryCategory').value='uncertain';document.getElementById('entrySeverity').value='0';document.getElementById('entryTags').value='kétséges, tanítandó';applyRecommendedSettings();setView('entries')}
+function deleteUncertain(i){data.uncertain.splice(i,1);save()}
+function checkUrlIncoming(){const p=new URLSearchParams(location.search),text=p.get('text');if(text){document.getElementById('incomingText').value=text;prefillFromIncoming()}}
+function boot(){initSelectors();clearForm();checkUrlIncoming();renderAll()}
+boot();
+</script>
+</body>
+</html>
