@@ -1,0 +1,399 @@
+
+.th-blurred {
+  filter: blur(6px) !important;
+  -webkit-filter: blur(6px) !important;
+  transition: filter 0.2s !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+  position: relative !important;
+  z-index: 1 !important;
+  isolation: isolate !important;
+}
+.th-blurred:hover {
+  filter: none !important;
+  -webkit-filter: none !important;
+}
+.th-blur-wrapper {
+  filter: blur(6px) !important;
+  -webkit-filter: blur(6px) !important;
+  transition: filter 0.2s !important;
+  cursor: pointer !important;
+  display: inline-block !important;
+  max-width: 100% !important;
+}
+.th-blur-wrapper:hover {
+  filter: none !important;
+  -webkit-filter: none !important;
+}
+.th-blur-fallback-wrapper {
+  color: transparent !important;
+  background: #888 !important;
+  border-radius: 3px !important;
+  user-select: none !important;
+}
+.th-blur-fallback-wrapper:hover {
+  color: inherit !important;
+  background: transparent !important;
+}
+/* Fallback: ha a filter nem működik, szöveg helyett ████ jelenik meg */
+.th-blurred-fallback {
+  color: transparent !important;
+  background: #888 !important;
+  border-radius: 3px !important;
+  cursor: pointer !important;
+  user-select: none !important;
+}
+.th-blurred-fallback:hover {
+  color: inherit !important;
+  background: transparent !important;
+}
+.th-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 6px;
+  background: #c0392b;
+  color: #fff;
+  border-radius: 4px;
+  font-size: 11px;
+  font-family: sans-serif;
+  vertical-align: middle;
+}
+.th-warning-box {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2147483647;
+  background: linear-gradient(145deg, #fff 0%, var(--th-bg, #fff0f0) 100%);
+  border: 4px solid var(--th-color, #c0392b);
+  border-radius: 22px;
+  padding: 22px 26px 18px;
+  width: min(460px, calc(100vw - 36px));
+  max-width: 460px;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: 15px;
+  color: var(--th-text, #3a1111);
+  box-shadow:
+    0 0 0 6px var(--th-soft, rgba(192,57,43,0.16)),
+    0 0 24px 7px var(--th-glow, rgba(192,57,43,0.34)),
+    0 16px 46px rgba(0,0,0,0.24);
+  animation: th-glow 1.65s ease-in-out infinite;
+}
+@keyframes th-glow {
+  0%   { box-shadow: 0 0 0 5px var(--th-soft, rgba(192,57,43,0.14)), 0 0 18px 4px var(--th-glow, rgba(192,57,43,0.26)), 0 16px 46px rgba(0,0,0,0.22); }
+  50%  { box-shadow: 0 0 0 10px var(--th-soft-strong, rgba(192,57,43,0.25)), 0 0 34px 10px var(--th-glow-strong, rgba(192,57,43,0.44)), 0 16px 46px rgba(0,0,0,0.30); }
+  100% { box-shadow: 0 0 0 5px var(--th-soft, rgba(192,57,43,0.14)), 0 0 18px 4px var(--th-glow, rgba(192,57,43,0.26)), 0 16px 46px rgba(0,0,0,0.22); }
+}
+.th-warning-box h3 {
+  margin: 0 0 10px;
+  color: var(--th-color, #c0392b);
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: 0.3px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.th-warning-box p {
+  margin: 6px 0;
+  color: var(--th-text, #3a1111);
+  line-height: 1.5;
+}
+.th-warning-box button {
+  margin-top: 12px;
+  margin-right: 8px;
+  padding: 7px 16px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, transform 0.1s;
+  border: 2.5px solid;
+}
+.th-warning-box #th-use-rewrite {
+  background: #d4f7e0;
+  color: #1a6b3a;
+  border-color: #2ecc71;
+}
+.th-warning-box #th-use-rewrite:hover {
+  background: #2ecc71;
+  color: #fff;
+  transform: scale(1.04);
+}
+.th-warning-box #th-close, .th-warning-box #th-understood {
+  background: #fde8e8;
+  color: #8b1a1a;
+  border-color: #e74c3c;
+}
+.th-warning-box #th-close:hover, .th-warning-box #th-understood:hover {
+  background: var(--th-color, #e74c3c);
+  color: #fff;
+  transform: scale(1.04);
+}
+.th-highlight {
+  background: linear-gradient(180deg, transparent 60%, rgba(140,60,180,0.5) 60%) !important;
+  border-bottom: 2px solid rgba(140,60,180,0.8) !important;
+  border-radius: 2px !important;
+  cursor: help !important;
+  transition: background 0.2s !important;
+  display: inline !important;
+}
+.th-highlight:hover {
+  background: rgba(140,60,180,0.15) !important;
+}
+.th-detail-panel {
+  display: inline-block;
+  position: relative;
+  margin-left: 6px;
+  padding: 8px 28px 8px 12px;
+  background: #fff;
+  border: 1.5px solid #ddd;
+  border-radius: 10px;
+  font-size: 12px;
+  font-family: sans-serif;
+  color: #333;
+  max-width: 320px;
+  line-height: 1.5;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.12);
+  vertical-align: middle;
+  animation: th-fadein 0.15s ease;
+}
+@keyframes th-fadein {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.th-detail-close {
+  position: absolute;
+  top: 4px;
+  right: 8px;
+  cursor: pointer;
+  color: #aaa;
+  font-size: 13px;
+  font-weight: bold;
+}
+.th-detail-close:hover { color: #555; }
+.th-warning-box.th-calm-down {
+  animation: th-calm-out 0.55s ease forwards !important;
+}
+@keyframes th-calm-out {
+  from { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  to { opacity: 0; transform: translate(-50%, -50%) scale(0.96); }
+}
+.th-empathy-line {
+  margin-top: 10px !important;
+  padding-top: 9px !important;
+  border-top: 1px solid var(--th-soft, rgba(0,0,0,0.12)) !important;
+  font-weight: 650 !important;
+}
+
+
+/* Empatikus panel tipográfia */
+.th-warning-box .th-question-block {
+  margin: 12px 0 10px !important;
+  padding: 10px 12px !important;
+  border-left: 4px solid var(--th-color, #c0392b) !important;
+  background: var(--th-soft, rgba(0,0,0,0.08)) !important;
+  border-radius: 12px !important;
+}
+.th-warning-box .th-question-block span {
+  font-weight: 700 !important;
+}
+.th-warning-box .th-question-block strong {
+  display: inline-block !important;
+  margin-top: 3px !important;
+  font-size: 16px !important;
+  letter-spacing: 0.45px !important;
+  color: var(--th-color, #c0392b) !important;
+}
+.th-warning-box .th-suggestion-block {
+  margin: 10px 0 8px !important;
+}
+.th-warning-box .th-suggestion-block em {
+  display: block !important;
+  margin-top: 4px !important;
+  font-style: normal !important;
+  line-height: 1.48 !important;
+}
+.th-warning-box .th-quote-line {
+  margin-top: 12px !important;
+  padding-top: 10px !important;
+  border-top: 1px solid var(--th-soft, rgba(0,0,0,0.12)) !important;
+  opacity: 0.88 !important;
+  font-size: 14px !important;
+}
+.th-warning-box .th-quote-line em {
+  font-style: italic !important;
+}
+.th-warning-box .th-quote-line small {
+  display: inline-block !important;
+  margin-top: 3px !important;
+  font-size: 12px !important;
+  opacity: 0.78 !important;
+}
+
+/* Stabil olvasási/komment opálosítás: puha, élő, kattintásra nyíló opálréteg */
+.th-opalized {
+  position: relative !important;
+  display: inline-block !important;
+  max-width: 100% !important;
+  min-height: 1.7em !important;
+  border-radius: 14px !important;
+  overflow: visible !important;
+  isolation: isolate !important;
+  cursor: pointer !important;
+  transition: filter 0.18s ease, opacity 0.18s ease !important;
+  margin-bottom: 6px !important;
+}
+.th-opalized:not(.th-opal-revealed) > * {
+  filter: blur(2.2px) contrast(0.75) !important;
+  opacity: 0.46 !important;
+  transition: filter 0.18s ease, opacity 0.18s ease !important;
+}
+.th-opalized.th-opal-revealed > * {
+  filter: none !important;
+  opacity: 1 !important;
+}
+.th-opalized::before {
+  content: "";
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 2147483645 !important;
+  border-radius: inherit !important;
+  background:
+    radial-gradient(circle at 18% 12%, rgba(255,255,255,0.22), rgba(255,255,255,0.075) 38%, rgba(18,24,38,0.42) 76%),
+    linear-gradient(135deg, rgba(248,250,252,0.42), rgba(30,41,59,0.54)),
+    color-mix(in srgb, var(--th-opal-color, #c0392b) 23%, rgba(15,23,42,0.66)) !important;
+  border: 1.5px solid color-mix(in srgb, var(--th-opal-color, #c0392b) 58%, rgba(255,255,255,0.22)) !important;
+  box-shadow:
+    inset 0 0 28px rgba(255,255,255,0.23),
+    inset 0 0 45px rgba(15,23,42,0.28),
+    0 0 0 3px color-mix(in srgb, var(--th-opal-color, #c0392b) 13%, transparent),
+    0 0 24px color-mix(in srgb, var(--th-opal-color, #c0392b) 24%, transparent) !important;
+  backdrop-filter: blur(20px) saturate(1.24) contrast(0.72) brightness(1.12) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(1.24) contrast(0.72) brightness(1.12) !important;
+  pointer-events: none !important;
+  animation: th-opal-pulse 2.15s ease-in-out infinite !important;
+  transition: opacity 0.18s ease, backdrop-filter 0.18s ease, -webkit-backdrop-filter 0.18s ease !important;
+}
+@keyframes th-opal-pulse {
+  0% {
+    border-color: color-mix(in srgb, var(--th-opal-color, #c0392b) 38%, rgba(255,255,255,0.16));
+    box-shadow: inset 0 0 16px rgba(255,255,255,0.13), 0 0 0 2px color-mix(in srgb, var(--th-opal-color, #c0392b) 8%, transparent), 0 0 15px color-mix(in srgb, var(--th-opal-color, #c0392b) 16%, transparent);
+  }
+  50% {
+    border-color: color-mix(in srgb, var(--th-opal-color, #c0392b) 68%, rgba(255,255,255,0.24));
+    box-shadow: inset 0 0 22px rgba(255,255,255,0.18), 0 0 0 5px color-mix(in srgb, var(--th-opal-color, #c0392b) 16%, transparent), 0 0 30px color-mix(in srgb, var(--th-opal-color, #c0392b) 30%, transparent);
+  }
+  100% {
+    border-color: color-mix(in srgb, var(--th-opal-color, #c0392b) 38%, rgba(255,255,255,0.16));
+    box-shadow: inset 0 0 16px rgba(255,255,255,0.13), 0 0 0 2px color-mix(in srgb, var(--th-opal-color, #c0392b) 8%, transparent), 0 0 15px color-mix(in srgb, var(--th-opal-color, #c0392b) 16%, transparent);
+  }
+}
+.th-opalized::after {
+  content: "⚠️  " attr(data-th-opal-label);
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 2147483646 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  padding: 6px 12px !important;
+  box-sizing: border-box !important;
+  font-family: 'Segoe UI', Arial, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 850 !important;
+  line-height: 1.2 !important;
+  color: #facc15 !important;
+  text-shadow: 0 2px 4px rgba(45,45,45,0.82), 0 0 3px rgba(45,45,45,0.68) !important;
+  pointer-events: none !important;
+  transition: opacity 0.18s ease !important;
+}
+.th-opalized:hover::before {
+  background:
+    radial-gradient(circle at 18% 12%, rgba(255,255,255,0.18), rgba(255,255,255,0.060) 38%, rgba(18,24,38,0.38) 76%),
+    linear-gradient(135deg, rgba(248,250,252,0.35), rgba(30,41,59,0.48)),
+    color-mix(in srgb, var(--th-opal-color, #c0392b) 20%, rgba(15,23,42,0.60)) !important;
+}
+.th-opalized.th-opal-revealed::before,
+.th-opalized.th-opal-revealed::after {
+  opacity: 0 !important;
+}
+.th-opalized.th-opal-revealed {
+  cursor: default !important;
+}
+
+
+/* Emberi Hang – finom jelzés azoknak a kategóriáknak, amelyeket az adott érzékenység nem takar opállal */
+.th-soft-flagged {
+  position: relative !important;
+}
+.th-soft-marker {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 22px !important;
+  height: 22px !important;
+  min-width: 22px !important;
+  margin: 0 6px 0 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: #facc15 !important;
+  font-size: 21px !important;
+  line-height: 1 !important;
+  cursor: help !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.82), 0 0 6px color-mix(in srgb, var(--th-marker-color, #eab308) 35%, transparent) !important;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.55)) !important;
+  vertical-align: text-top !important;
+}
+.th-soft-marker:hover {
+  transform: translateY(-1px) scale(1.08) !important;
+  color: color-mix(in srgb, #facc15 72%, var(--th-marker-color, #eab308)) !important;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.88), 0 0 10px color-mix(in srgb, var(--th-marker-color, #eab308) 55%, transparent) !important;
+}
+.th-marker-info {
+  position: fixed !important;
+  left: 50% !important;
+  top: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 2147483647 !important;
+  width: min(430px, calc(100vw - 36px)) !important;
+  padding: 16px 18px !important;
+  border-radius: 18px !important;
+  border: 2px solid var(--th-marker-color, #eab308) !important;
+  background: rgba(17,24,39,0.96) !important;
+  color: #f8fafc !important;
+  font-family: 'Segoe UI', Arial, sans-serif !important;
+  box-shadow: 0 18px 50px rgba(0,0,0,0.38), 0 0 22px color-mix(in srgb, var(--th-marker-color, #eab308) 24%, transparent) !important;
+}
+.th-marker-info strong {
+  display: block !important;
+  margin-bottom: 8px !important;
+  color: var(--th-marker-color, #eab308) !important;
+  font-size: 16px !important;
+}
+.th-marker-info p {
+  margin: 0 0 8px !important;
+  font-size: 14px !important;
+  line-height: 1.45 !important;
+}
+.th-marker-info small {
+  display: block !important;
+  color: #cbd5e1 !important;
+  line-height: 1.45 !important;
+}
+.th-marker-info button {
+  margin-top: 12px !important;
+  padding: 7px 14px !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  background: var(--th-marker-color, #eab308) !important;
+  color: #111827 !important;
+  font-weight: 800 !important;
+  cursor: pointer !important;
+}

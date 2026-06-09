@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="hu">
+<head>
+  <meta charset="utf-8" />
+  <title>Emberi Hang</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <main>
+    <h1>Emberi Hang</h1>
+
+    <section id="refreshNotice" class="refresh-notice" hidden>
+      <strong>⚠️ Aktiválás szükséges</strong>
+      <p>Új telepítés vagy frissítés után először frissítsd az aktuális oldalt. Ha a védelem még nem indul el hibátlanul, indítsd újra a böngészőt.</p>
+      <button id="refreshPage" type="button">OLDAL FRISSÍTÉSE</button>
+      <button id="showRestartHelp" class="secondary-action" type="button">BÖNGÉSZŐ ÚJRAINDÍTÁSÁNAK LÉPÉSEI</button>
+      <div id="restartHelp" class="restart-help" hidden>
+        <strong>Újraindítás előtt:</strong>
+        <p>Mentsd el a munkád, mert a nyitott oldalak újratöltődhetnek. Ha megnyomod ezt a részt, nem kapsz libacombot — csak egy XXI. századi mondókát: zárd be a Chrome-ot, majd nyisd meg újra. 🙂</p>
+        <p><strong>Gyors mód:</strong> írd a címsorba: <code>chrome://restart</code></p>
+        <button id="copyRestartUrl" class="secondary-action" type="button">chrome://restart MÁSOLÁSA</button>
+        <small id="restartCopyStatus"></small>
+      </div>
+    </section>
+
+    <label><input type="checkbox" id="enabled" /> Védelem bekapcsolva</label>
+    <label><input type="checkbox" id="blurIncoming" /> Bejövő sértő szövegek opálosítása</label>
+    <label><input type="checkbox" id="warnOutgoing" /> Kimenő komment figyelmeztetés</label>
+
+    <section class="sensitivity-section">
+      <label for="sensitivity">🎚️ Érzékenység</label>
+      <div class="sensitivity-row">
+        <span class="sens-label">Enyhe</span>
+        <input type="range" id="sensitivity" min="1" max="2" step="1" value="1" />
+        <span class="sens-label">Erős</span>
+      </div>
+      <p id="sensitivityDesc"></p>
+    </section>
+
+
+    <section class="note">
+      <strong>Alapelv:</strong><br />
+      A kritika maradjon erős, de az emberi méltóság ne sérüljön.
+    </section>
+  </main>
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,193 @@
+body { font-family: Arial, sans-serif; width: 310px; margin: 0; background: #fafafa; color: #222; }
+main { padding: 14px; }
+h1 { font-size: 20px; margin: 0 0 8px; }
+p { font-size: 13px; line-height: 1.35; }
+label { display: block; margin: 12px 0; font-size: 14px; }
+.note { margin-top: 14px; padding: 10px; background: white; border: 1px solid #ddd; border-radius: 10px; font-size: 13px; line-height: 1.35; }
+
+.api-section {
+  margin-top: 14px;
+  padding: 12px 14px;
+  background: #f0f4ff;
+  border-radius: 10px;
+  border: 1.5px solid #c0d0ff;
+}
+.api-section label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #334;
+  margin-bottom: 6px;
+}
+.api-row {
+  display: flex;
+  gap: 6px;
+}
+.api-row input {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1.5px solid #c0d0ff;
+  border-radius: 8px;
+  font-size: 12px;
+}
+.api-row button {
+  padding: 6px 12px;
+  background: #4a6fa5;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.api-row button:hover { background: #2d4e8a; }
+#apiStatus { font-size: 11px; margin: 5px 0 0; }
+.api-hint { font-size: 11px; color: #888; margin: 4px 0 0; }
+.api-hint a { color: #4a6fa5; }
+
+/* Érzékenység pótméter */
+.sensitivity-section {
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: #f0f6ff;
+  border-radius: 10px;
+  border: 1.5px solid #b8d4f0;
+}
+.sensitivity-section label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #334;
+  margin-bottom: 8px;
+}
+.sensitivity-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sens-label {
+  font-size: 10px;
+  color: #666;
+  white-space: nowrap;
+}
+#sensitivity {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(to right, #22c55e 0%, #22c55e 50%, #ef4444 50%, #ef4444 100%);
+  outline: none;
+  cursor: pointer;
+  transition: background .18s ease, box-shadow .18s ease;
+}
+#sensitivity::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--eh-sens-color, #22c55e);
+  cursor: pointer;
+  box-shadow: 0 2px 7px rgba(0,0,0,0.28), 0 0 0 4px var(--eh-sens-glow, rgba(34,197,94,0.16));
+  border: 2px solid white;
+  transition: background .18s ease, box-shadow .18s ease, transform .12s ease;
+}
+#sensitivity::-webkit-slider-thumb:hover { transform: scale(1.08); }
+#sensitivity::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--eh-sens-color, #22c55e);
+  cursor: pointer;
+  box-shadow: 0 2px 7px rgba(0,0,0,0.28), 0 0 0 4px var(--eh-sens-glow, rgba(34,197,94,0.16));
+  border: 2px solid white;
+}
+#sensitivity::-moz-range-track {
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(to right, #22c55e 0%, #22c55e 50%, #ef4444 50%, #ef4444 100%);
+}
+.sensitivity-section.sens-1 {
+  --eh-sens-color: #22c55e;
+  --eh-sens-glow: rgba(34,197,94,0.18);
+  border-color: rgba(34,197,94,0.55);
+  background: #f0fff5;
+}
+.sensitivity-section.sens-2 {
+  --eh-sens-color: #ef4444;
+  --eh-sens-glow: rgba(239,68,68,0.18);
+  border-color: rgba(239,68,68,0.55);
+  background: #fff1f1;
+}
+.sensitivity-section.sens-1 #sensitivityDesc { color: #15803d; }
+.sensitivity-section.sens-2 #sensitivityDesc { color: #b91c1c; }
+.sensitivity-section.sens-1 .sens-label:first-child,
+.sensitivity-section.sens-2 .sens-label:last-child {
+  font-weight: 800;
+  color: var(--eh-sens-color);
+}
+#sensitivityDesc {
+  font-size: 10px;
+  margin: 6px 0 0;
+  text-align: center;
+  font-style: italic;
+}
+
+
+.refresh-notice {
+  margin: 10px 0 14px;
+  padding: 10px;
+  background: #fff7e6;
+  border: 1.5px solid #f0b24d;
+  border-radius: 10px;
+  font-size: 12px;
+  line-height: 1.35;
+}
+.refresh-notice p {
+  margin: 6px 0 8px;
+  font-size: 12px;
+}
+.refresh-notice button {
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: #d9831f;
+  color: white;
+  font-weight: 800;
+  cursor: pointer;
+}
+.refresh-notice button:hover { background: #b96d16; }
+
+.refresh-notice .secondary-action {
+  width: 100%;
+  margin-top: 7px;
+  padding: 7px 9px;
+  border: 1px solid #d9831f;
+  border-radius: 8px;
+  background: #fff;
+  color: #9a560e;
+  font-weight: 800;
+  cursor: pointer;
+}
+.refresh-notice .secondary-action:hover { background: #fff2dc; }
+.restart-help {
+  margin-top: 9px;
+  padding: 9px;
+  background: rgba(255,255,255,0.8);
+  border: 1px dashed #d9831f;
+  border-radius: 8px;
+}
+.restart-help p { margin: 6px 0; }
+.restart-help code {
+  padding: 2px 5px;
+  border-radius: 5px;
+  background: #f1e2cc;
+  font-family: Consolas, monospace;
+}
+#restartCopyStatus {
+  display: block;
+  margin-top: 6px;
+  color: #7a4a0a;
+  line-height: 1.3;
+}
